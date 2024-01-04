@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "io.github.techtastic.cc_vs.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "MixinTileComputer",
+    "MixinTileTurtle"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

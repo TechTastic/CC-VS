@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "io.github.techtastic.cc_vs.forge.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "plugin": "io.github.techtastic.cc_vs.forge.mixin.ValkyrienForgeMixinConfigPlugin",
+  "mixins": [
+    "MixinTileComputer",
+    "MixinTileTurtle"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

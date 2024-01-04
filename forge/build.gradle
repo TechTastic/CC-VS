@@ -28,8 +28,8 @@ loom {
 
     forge {
         convertAccessWideners = true
-        mixinConfig "vs_eureka.mixins.json"
-        mixinConfig "vs_eureka-common.mixins.json"
+        mixinConfig "cc_vs.mixins.json"
+        mixinConfig "cc_vs-common.mixins.json"
         extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
     }
 }
@@ -44,6 +44,9 @@ configurations {
 
 dependencies {
     forge "net.minecraftforge:forge:$forge_version"
+
+    include(modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}")
+
     modApi("org.valkyrienskies:valkyrienskies-118-forge:$vs2_version") { transitive = false }
 
     implementation("org.valkyrienskies.core:api:$vs_core_version")
@@ -55,6 +58,8 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
     implementation "thedarkcolour:kotlinforforge:$forge_kotlin_version"
+
+    modImplementation("curse.maven:cc-tweaked-282001:4630521")
 }
 
 processResources {
