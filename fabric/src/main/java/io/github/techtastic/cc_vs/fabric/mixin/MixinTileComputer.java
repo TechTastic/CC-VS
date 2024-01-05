@@ -28,13 +28,12 @@ public class MixinTileComputer {
         Level level = computer.getLevel();
         BlockPos pos = computer.getPosition();
         ServerShip ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) level, pos);
-        if (ship == null)
-            cir.cancel();
 
-        if (computer.getFamily().equals(ComputerFamily.COMMAND))
-            computer.addAPI(new ExtendedShipAPI(computer.getAPIEnvironment(), ship));
-        else
-            computer.addAPI(new ShipAPI(computer.getAPIEnvironment(), ship));
+        if (ship != null)
+            if (computer.getFamily().equals(ComputerFamily.COMMAND))
+                computer.addAPI(new ExtendedShipAPI(computer.getAPIEnvironment(), ship));
+            else
+                computer.addAPI(new ShipAPI(computer.getAPIEnvironment(), ship));
 
         cir.setReturnValue(computer);
     }

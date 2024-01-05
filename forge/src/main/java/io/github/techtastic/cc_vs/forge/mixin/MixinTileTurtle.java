@@ -25,17 +25,15 @@ public class MixinTileTurtle {
     )
     private void cc_vs$addShipAPI(int id, CallbackInfoReturnable<ServerComputer> cir) {
         ServerComputer computer = cir.getReturnValue();
-        Level level = computer.getLevel();
+        ServerLevel level = computer.getLevel();
         BlockPos pos = computer.getPosition();
-        ServerShip ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) level, pos);
+        ServerShip ship = VSGameUtilsKt.getShipManagingPos(level, pos);
 
-        if (ship == null)
-            cir.cancel();
-
-        if (computer.getFamily().equals(ComputerFamily.COMMAND))
-            computer.addAPI(new ExtendedShipAPI(computer.getAPIEnvironment(), ship));
-        else
-            computer.addAPI(new ShipAPI(computer.getAPIEnvironment(), ship));
+        if (ship != null)
+            if (computer.getFamily().equals(ComputerFamily.COMMAND))
+                computer.addAPI(new ExtendedShipAPI(computer.getAPIEnvironment(), ship));
+            else
+                computer.addAPI(new ShipAPI(computer.getAPIEnvironment(), ship));
 
         cir.setReturnValue(computer);
     }
