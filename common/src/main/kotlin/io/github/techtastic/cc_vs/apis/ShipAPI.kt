@@ -5,6 +5,7 @@ import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.core.apis.IAPIEnvironment
 import org.joml.Vector3d
 import org.joml.Vector3dc
+import org.joml.Vector4d
 import org.joml.primitives.AABBi
 import org.valkyrienskies.core.api.ships.ServerShip
 import kotlin.math.asin
@@ -31,7 +32,7 @@ open class ShipAPI(val environment: IAPIEnvironment, val ship: ServerShip) : ILu
     fun getMomentOfInertiaTensor(): List<List<Double>> {
         val tensor: MutableList<List<Double>> = mutableListOf()
 
-        for (i in 0..1) {
+        for (i in 0..2) {
             val row = this.ship.inertiaData.momentOfInertiaTensor.getRow(i, Vector3d())
             tensor.add(i, listOf(row.x, row.y, row.z))
         }
@@ -102,6 +103,19 @@ open class ShipAPI(val environment: IAPIEnvironment, val ship: ServerShip) : ILu
     @LuaFunction
     fun setName(name: String) {
         this.ship.slug = name
+    }
+
+    @LuaFunction
+    fun getRotationMatrix(): List<List<Double>> {
+        val transform = this.ship.transform.shipToWorld
+        val matrix: MutableList<List<Double>> = mutableListOf()
+
+        for (i in 0..3) {
+            val row = transform.getRow(i, Vector4d())
+            matrix.add(i, listOf(row.x, row.y, row.z, row.w))
+        }
+
+        return matrix.toList()
     }
 
     private fun vectorToTable(vec: Vector3dc): Map<String, Double> = mapOf(
