@@ -8,11 +8,15 @@ import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.api.ships.saveAttachment
 
 class ExtendedShipAPI(environment: IAPIEnvironment, ship: ServerShip) : ShipAPI(environment, ship) {
-    var control: QueuedForcesApplier = this.ship.getAttachment(QueuedForcesApplier::class.java) ?: 
-    run {
-        val newControl = QueuedForcesApplier()
-        ship.saveAttachment(newControl)
-        newControl
+    var control: QueuedForcesApplier
+
+    init {
+        var tempControl = this.ship.getAttachment(QueuedForcesApplier::class.java)
+        if (tempControl == null) {
+            tempControl = QueuedForcesApplier()
+            this.ship.saveAttachment(tempControl)
+        }
+        control = tempControl
     }
 
     @LuaFunction

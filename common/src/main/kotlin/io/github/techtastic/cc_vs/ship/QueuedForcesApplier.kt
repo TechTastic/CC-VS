@@ -4,7 +4,6 @@ import org.joml.Vector3dc
 import org.valkyrienskies.core.api.ships.PhysShip
 import org.valkyrienskies.core.api.ships.ShipForcesInducer
 import org.valkyrienskies.core.util.pollUntilEmpty
-import org.valkyrienskies.mod.common.util.GameTickForceApplier
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class QueuedForcesApplier: ShipForcesInducer {
