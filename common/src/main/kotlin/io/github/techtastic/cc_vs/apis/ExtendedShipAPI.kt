@@ -4,20 +4,11 @@ import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.core.apis.IAPIEnvironment
 import io.github.techtastic.cc_vs.ship.QueuedForcesApplier
 import org.joml.Vector3d
+import org.valkyrienskies.core.api.ships.LoadedServerShip
 import org.valkyrienskies.core.api.ships.ServerShip
-import org.valkyrienskies.core.api.ships.saveAttachment
 
 class ExtendedShipAPI(environment: IAPIEnvironment, ship: ServerShip) : ShipAPI(environment, ship) {
-    var control: QueuedForcesApplier
-
-    init {
-        var tempControl = this.ship.getAttachment(QueuedForcesApplier::class.java)
-        if (tempControl == null) {
-            tempControl = QueuedForcesApplier()
-            this.ship.saveAttachment(tempControl)
-        }
-        control = tempControl
-    }
+    var control: QueuedForcesApplier = QueuedForcesApplier.getOrCreateControl(this.ship)
 
     @LuaFunction
     fun applyInvariantForce(xForce: Double, yForce: Double, zForce: Double) {

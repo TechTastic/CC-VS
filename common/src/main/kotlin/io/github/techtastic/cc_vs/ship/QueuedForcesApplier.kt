@@ -1,8 +1,11 @@
 package io.github.techtastic.cc_vs.ship
 
 import org.joml.Vector3dc
+import org.valkyrienskies.core.api.ships.LoadedServerShip
 import org.valkyrienskies.core.api.ships.PhysShip
+import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.api.ships.ShipForcesInducer
+import org.valkyrienskies.core.impl.game.ships.PhysShipImpl
 import org.valkyrienskies.core.util.pollUntilEmpty
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -26,6 +29,7 @@ class QueuedForcesApplier: ShipForcesInducer {
     var toBeStaticUpdated = false
 
     override fun applyForces(physShip: PhysShip) {
+
         invForces.pollUntilEmpty(physShip::applyInvariantForce)
         invTorques.pollUntilEmpty(physShip::applyInvariantTorque)
         invPosForces.pollUntilEmpty { (force, pos) -> physShip.applyInvariantForceToPos(force, pos) }
@@ -40,6 +44,7 @@ class QueuedForcesApplier: ShipForcesInducer {
     }
 
     fun applyInvariantForce(force: Vector3dc) {
+        println("Force: $force")
         invForces.add(force)
     }
 
@@ -66,6 +71,18 @@ class QueuedForcesApplier: ShipForcesInducer {
     fun setStatic(b: Boolean) {
         toBeStatic = b
         toBeStaticUpdated = true
+    }
+
+    companion object {
+        fun getOrCreateControl(ship: ServerShip): QueuedForcesApplier {
+            var control = ship.getAttachment(QueuedForcesApplier::class.java)
+            if (control == null) {
+                control = QueuedForcesApplier()
+                ship.saveAttachment(QueuedForcesApplier::class.java, control)
+            }
+
+            return control
+        }
     }
 
     private data class ForceAtPos(val force: Vector3dc, val pos: Vector3dc)
