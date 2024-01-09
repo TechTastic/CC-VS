@@ -30,7 +30,7 @@ public class MixinTileComputer {
 
         if (ship != null) {
             if (computer.getFamily().equals(ComputerFamily.COMMAND))
-                computer.addAPI(new ExtendedShipAPI(computer.getAPIEnvironment(), ship));
+                computer.addAPI(new ExtendedShipAPI(computer.getAPIEnvironment(), ship, level));
             else
                 computer.addAPI(new ShipAPI(computer.getAPIEnvironment(), ship));
 
