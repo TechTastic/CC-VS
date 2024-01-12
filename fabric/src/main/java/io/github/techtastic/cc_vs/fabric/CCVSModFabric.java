@@ -1,26 +1,24 @@
 package io.github.techtastic.cc_vs.fabric;
 
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 import io.github.techtastic.cc_vs.CCVSMod;
+import io.github.techtastic.cc_vs.fabric.config.CCVSConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.model.BakedModelManagerHelper;
-import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import org.valkyrienskies.core.impl.config.VSConfigClass;
-import org.valkyrienskies.mod.compat.clothconfig.VSClothConfig;
+import net.minecraftforge.api.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 import org.valkyrienskies.mod.fabric.common.ValkyrienSkiesModFabric;
+
+import static io.github.techtastic.cc_vs.CCVSMod.MOD_ID;
 
 public class CCVSModFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         // force VS2 to load before eureka
         new ValkyrienSkiesModFabric().onInitialize();
+
+        ModLoadingContext.registerConfig(MOD_ID, ModConfig.Type.COMMON, CCVSConfig.SPEC, MOD_ID + "-config.toml");
 
         CCVSMod.init();
     }

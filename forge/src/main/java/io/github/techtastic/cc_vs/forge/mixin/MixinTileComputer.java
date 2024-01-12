@@ -5,6 +5,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import io.github.techtastic.cc_vs.apis.ExtendedShipAPI;
 import io.github.techtastic.cc_vs.apis.ShipAPI;
+import io.github.techtastic.cc_vs.util.CCVSUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,14 +29,7 @@ public class MixinTileComputer {
         BlockPos pos = computer.getPosition();
         ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos(level, pos);
 
-        if (ship != null) {
-            if (computer.getFamily().equals(ComputerFamily.COMMAND))
-                computer.addAPI(new ExtendedShipAPI(computer.getAPIEnvironment(), ship, level));
-            else
-                computer.addAPI(new ShipAPI(computer.getAPIEnvironment(), ship));
-
-            cir.setReturnValue(computer);
-        }
+        CCVSUtils.INSTANCE.applyShipAPIsToComputer(computer, level, ship);
 
         cir.setReturnValue(computer);
     }
