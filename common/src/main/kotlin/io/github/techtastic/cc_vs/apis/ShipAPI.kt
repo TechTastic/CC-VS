@@ -64,13 +64,13 @@ open class ShipAPI(val environment: IAPIEnvironment, val ship: ServerShip) : ILu
     }
 
     @LuaFunction
-    fun getPitch(): Double {
+    fun getYaw(): Double {
         val q = this.ship.transform.shipToWorldRotation
         return asin(-2.0 * (q.x() * q.z() - q.w() * q.y()))
     }
 
     @LuaFunction
-    fun getYaw(): Double {
+    fun getPitch(): Double {
         val q = this.ship.transform.shipToWorldRotation
         return atan2(2.0 * (q.y() * q.z() + q.w() * q.x()), q.w() * q.w() - q.x() * q.x() - q.y() * q.y() + q.z() * q.z())
     }
