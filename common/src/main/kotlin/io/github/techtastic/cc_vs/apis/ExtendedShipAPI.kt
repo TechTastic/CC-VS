@@ -4,8 +4,11 @@ import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.core.apis.IAPIEnvironment
+import io.github.techtastic.cc_vs.CCVSMod
+import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.ship.QueuedForcesApplier
 import net.minecraft.server.level.ServerLevel
+import org.apache.logging.log4j.core.pattern.NotANumber
 import org.joml.Quaterniond
 import org.joml.Quaterniondc
 import org.joml.Vector3d
@@ -64,6 +67,9 @@ class ExtendedShipAPI(environment: IAPIEnvironment, ship: ServerShip, val level:
 
     @LuaFunction
     fun teleport(args: IArguments) {
+        if (!PlatformUtils.canTeleport())
+            throw LuaException("Teleporting is Disabled via CC: VS Config!")
+
         val input = args.getTable(0)
         
         var pos = this.ship.transform.positionInWorld
@@ -72,7 +78,7 @@ class ExtendedShipAPI(environment: IAPIEnvironment, ship: ServerShip, val level:
         
         var rot = this.ship.transform.shipToWorldRotation
         if (input.containsKey("rot"))
-            rot = getQuaternionFromTable(input)
+            rot = getQuaternionFromTable(input).normalize(Quaterniond())
 
         var vel = this.ship.velocity
         if (input.containsKey("vel"))
@@ -92,7 +98,10 @@ class ExtendedShipAPI(environment: IAPIEnvironment, ship: ServerShip, val level:
 
         val teleportData = ShipTeleportDataImpl(pos, rot, vel, omega, dimension, scale)
 
-        vsCore.teleportShip(this.level.shipObjectWorld, this.ship, teleportData)
+        println("Rot: ${teleportData.newRot}\n")
+
+        //vsCore.teleportShip(this.level.shipObjectWorld, this.ship, teleportData)
+        this.level.shipObjectWorld.teleportShip(this.ship, teleportData)
     }
 
     private fun getVectorFromTable(input: Map<*, *>, section: String): Vector3dc {
