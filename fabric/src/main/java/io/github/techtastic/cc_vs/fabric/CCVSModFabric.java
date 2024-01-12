@@ -1,12 +1,13 @@
 package io.github.techtastic.cc_vs.fabric;
 
+import fuzs.forgeconfigapiport.impl.ForgeConfigAPIPort;
+import fuzs.forgeconfigapiport.impl.config.ForgeConfigRegistryImpl;
 import io.github.techtastic.cc_vs.CCVSMod;
 import io.github.techtastic.cc_vs.fabric.config.CCVSConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
-import net.minecraftforge.api.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 import org.valkyrienskies.mod.fabric.common.ValkyrienSkiesModFabric;
 
@@ -18,7 +19,7 @@ public class CCVSModFabric implements ModInitializer {
         // force VS2 to load before eureka
         new ValkyrienSkiesModFabric().onInitialize();
 
-        ModLoadingContext.registerConfig(MOD_ID, ModConfig.Type.COMMON, CCVSConfig.SPEC, MOD_ID + "-config.toml");
+        ForgeConfigRegistryImpl.INSTANCE.register(MOD_ID, ModConfig.Type.COMMON, CCVSConfig.SPEC, MOD_ID + "-config.toml");
 
         CCVSMod.init();
     }

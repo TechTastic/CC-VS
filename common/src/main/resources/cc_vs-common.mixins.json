@@ -2,7 +2,9 @@
   "required": true,
   "package": "io.github.techtastic.cc_vs.mixin",
   "compatibilityLevel": "JAVA_17",
-  "client": [
+  "mixins": [
+    "MixinTileComputer",
+    "MixinTileTurtle"
   ],
   "injectors": {
     "defaultRequire": 1

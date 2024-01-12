@@ -4,22 +4,16 @@ import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.core.apis.IAPIEnvironment
-import io.github.techtastic.cc_vs.CCVSMod
 import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.ship.QueuedForcesApplier
 import net.minecraft.server.level.ServerLevel
-import org.apache.logging.log4j.core.pattern.NotANumber
 import org.joml.Quaterniond
 import org.joml.Quaterniondc
 import org.joml.Vector3d
 import org.joml.Vector3dc
-import org.valkyrienskies.core.api.ships.LoadedServerShip
 import org.valkyrienskies.core.api.ships.ServerShip
-import org.valkyrienskies.core.apigame.ShipTeleportData
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl
-import org.valkyrienskies.mod.common.dimensionId
 import org.valkyrienskies.mod.common.shipObjectWorld
-import org.valkyrienskies.mod.common.util.settings
 import org.valkyrienskies.mod.common.vsCore
 
 class ExtendedShipAPI(environment: IAPIEnvironment, ship: ServerShip, val level: ServerLevel) : ShipAPI(environment, ship) {
