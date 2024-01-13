@@ -34,14 +34,14 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:3.2.3")
     modImplementation("me.shedaniel.cloth:cloth-config:${cloth_config_version}")
 
-    modApi("org.valkyrienskies:valkyrienskies-118-fabric:${rootProject.vs2_version}")
+    modApi("org.valkyrienskies:valkyrienskies-119-fabric:${rootProject.vs2_version}")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    modImplementation("curse.maven:cc-restitched-462672:3838648")
+    modImplementation("curse.maven:cc-restitched-462672:3908334")
 
-    include(modImplementation("curse.maven:forge-config-api-547434:3943250"))
+    include(modImplementation("curse.maven:forge-config-api-547434:4401535"))
 
     // Config Dependencies
     implementation(include('com.electronwill.night-config:core:3.6.5'))

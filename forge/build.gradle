@@ -47,7 +47,7 @@ dependencies {
 
     include(modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}")
 
-    modApi("org.valkyrienskies:valkyrienskies-118-forge:$vs2_version") { transitive = false }
+    modApi("org.valkyrienskies:valkyrienskies-119-forge:$vs2_version") { transitive = false }
 
     implementation("org.valkyrienskies.core:api:$vs_core_version")
     implementation("org.valkyrienskies.core:api-game:$vs_core_version")
@@ -59,7 +59,7 @@ dependencies {
 
     implementation "thedarkcolour:kotlinforforge:$forge_kotlin_version"
 
-    modImplementation("curse.maven:cc-tweaked-282001:4630521")
+    modImplementation("curse.maven:cc-tweaked-282001:5005332")
 }
 
 processResources {

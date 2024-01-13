@@ -4,11 +4,6 @@ import io.github.techtastic.cc_vs.CCVSMod
 import io.github.techtastic.cc_vs.CCVSMod.init
 import io.github.techtastic.cc_vs.CCVSMod.initClient
 import io.github.techtastic.cc_vs.forge.config.CCVSConfig
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
-import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers
-import net.minecraftforge.client.event.ModelRegistryEvent
-import net.minecraftforge.client.model.ForgeModelBakery
 import net.minecraftforge.eventbus.api.IEventBus
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod

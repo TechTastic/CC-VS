@@ -2,7 +2,6 @@ package io.github.techtastic.cc_vs.util
 
 import dan200.computercraft.shared.computer.core.ComputerFamily
 import dan200.computercraft.shared.computer.core.ServerComputer
-import io.github.techtastic.cc_vs.CCVSMod
 import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.apis.ExtendedShipAPI
 import io.github.techtastic.cc_vs.apis.ShipAPI

@@ -1,10 +1,7 @@
 package io.github.techtastic.cc_vs.forge.mixin;
 
 import dan200.computercraft.shared.computer.blocks.TileComputer;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import io.github.techtastic.cc_vs.apis.ExtendedShipAPI;
-import io.github.techtastic.cc_vs.apis.ShipAPI;
 import io.github.techtastic.cc_vs.util.CCVSUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
