@@ -30,7 +30,5 @@ public class MixinTileComputer {
         ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos(level, pos);
 
         CCVSUtils.INSTANCE.applyShipAPIsToComputer(computer, level, ship);
-
-        cir.setReturnValue(computer);
     }
 }
