@@ -31,7 +31,5 @@ public class MixinTileTurtle {
         ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos((ServerLevel) level, pos);
 
         CCVSUtils.INSTANCE.applyShipAPIsToComputer(computer, (ServerLevel) level, ship);
-
-        cir.setReturnValue(computer);
     }
 }
