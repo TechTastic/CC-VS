@@ -20,7 +20,6 @@ public class MixinTileComputer {
     @Inject(
             method = "createComputer",
             at = @At("RETURN"),
-            cancellable = true,
             remap = false
     )
     private void cc_vs$addShipAPI(int id, CallbackInfoReturnable<ServerComputer> cir) {
@@ -30,7 +29,5 @@ public class MixinTileComputer {
         ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos(level, pos);
 
         CCVSUtils.INSTANCE.applyShipAPIsToComputer(computer, level, ship);
-
-        cir.setReturnValue(computer);
     }
 }
