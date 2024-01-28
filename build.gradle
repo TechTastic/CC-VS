@@ -13,16 +13,6 @@ plugins {
     id "com.modrinth.minotaur" version "2.4.5" apply false
 }
 
-// Determine the version
-if (project.hasProperty("CustomReleaseVersion")) {
-    // Remove release/ from the version if present
-    version = project.property("CustomReleaseVersion").replaceFirst("^release/", "")
-} else {
-    String gitRevision = "git rev-parse HEAD".execute().text.trim()
-
-    version = eureka_version + '+' + gitRevision.substring(0, 10)
-}
-
 architectury {
     minecraft = rootProject.minecraft_version
 }
@@ -92,8 +82,10 @@ allprojects {
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
 
+    String platform = String.valueOf(loader_platform).toString().toLowerCase()
+
     archivesBaseName = rootProject.archives_base_name
-    version = rootProject.version
+    version = minecraft_version + "-" + platform + "-" + mod_version
     group = rootProject.maven_group
 
     repositories {
