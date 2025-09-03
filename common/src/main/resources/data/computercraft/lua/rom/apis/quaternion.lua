@@ -51,6 +51,7 @@ local quaternion = {
     -- @tparam Quaternion self The quaternion to multiply.
     -- @tparam number, Quaternion, or Vector m The scalar value, quaternion, or vector to multiply with.
     -- @treturn Quaternion or Vector The resulting quaternion or rotated vector
+    -- Note: If using a scalar value, the resulting quaternion will be non-normalized.
     -- @usage q:mul(3)
     -- @usage q * 3
     -- @usage q1:mul(q2)
@@ -62,11 +63,11 @@ local quaternion = {
             if getmetatable(m).__index == getmetatable(self).__index then
                 -- Quaternion * Quaternion
                 return quaternion.new(
-                    m.v:mul(self.a),
-                    self.v:mul(m.a),
+                    m.v * self.a,
+                    self.v * m.a,
                     self.v:cross(m.v),
                     self.a * m.a + -(self.v:dot(m.v))
-                )
+                ):normalize()
             else
                 -- Quaternion * Vector
                 m_q = quaternion.new(m, 0)
@@ -89,6 +90,7 @@ local quaternion = {
     -- @tparam Quaternion self The quaternion to divide.
     -- @tparam Quaternion or number o The quaternion or scalar number to divide with.
     -- @treturn Quaternion The resulting quaternion
+    -- Note: If using a scalar value, the resulting quaternion will be non-normalized.
     -- @usage q1:div(q2)
     -- @usage q1 / q2
     -- @usage q:div(2)
@@ -149,7 +151,7 @@ local quaternion = {
     -- @treturn Quaternion The resulting normalized quaternion
     -- @usage q:normalize()
 	normalize = function(self)
-		local l = self:length()
+		local l = #self
 		return quaternion.new(self.v / l, self.a / l)
 	end,
 
@@ -159,11 +161,10 @@ local quaternion = {
     -- @treturn Quaternion The resulting inverse
     -- @usage q:inverse()
 	inverse = function(self)
-		if self:lengthSq() < 1e-5 then
+		if #self ^ 2 < 1e-5 then
 			return self
 		end
-		local tmp = self:conjugate()
-		return tmp:normalize()
+		return self:conjugate():normalize()
 	end,
 
     --- Spherical Linear Interpolation between the given quaternions.
@@ -174,6 +175,8 @@ local quaternion = {
     -- @treturn Quaternion The resulting quaternion
     -- @usage q1:slerp(q2, alpha)
 	slerp = function(self, o, alpha)
+        self = self:normalize()
+        o = o:normalize()
         local cos_half_theta = self.a * o.a + self.v.x * o.v.x + self.v.y * o.v.y + self.v.z * o.v.z;
         if cos_half_theta < 0 then
             o = -o;
@@ -198,6 +201,7 @@ local quaternion = {
     -- @treturn number The resulting angle
     -- @usage q:get_angle()
     get_angle = function(self)
+        self = self:normalize()
         return 2 * math.acos(self.a)
     end,
 
@@ -207,6 +211,7 @@ local quaternion = {
     -- @treturn Vector The resulting axis
     -- @usage q:get_axis()
     get_axis = function(self)
+        self = self:normalize()
         local factor = math.sqrt(1 - self.a * self.a)
         if factor == 0 then
             factor = 1
@@ -222,6 +227,7 @@ local quaternion = {
     -- @treturn number Yaw
     -- @usage q:to_euler()
     to_euler = function(self)
+        self = self:normalize()
         -- roll
         local roll = math.atan2(2 * (self.a * self.v.x + self.v.y * self.v.z), 1 - 2 * (self.v.x * self.v.x + self.v.y * self.v.y))
 
@@ -241,6 +247,10 @@ local quaternion = {
 	len = function(self)
 		return math.sqrt(self.a ^ 2 + self.v.x ^ 2 + self.v.y ^ 2 + self.v.z ^ 2)
 	end,
+
+	is_nan = function(self)
+        return not (self.a ~= self.a or self.v.x ~= self.v.x or self.v.y ~= self.v.y or self.v.z ~= self.v.z)
+    end
 }
 
 local vmetatable = {
@@ -263,7 +273,11 @@ function new(vec, w)
 end
 
 function from_axis_angle(axis, angle)
-    axis = axis or vector.new()
+    if not axis then
+        axis = vector.new()
+    else
+        axis = axis:normalize()
+    end
     angle = angle or 0
     local h_angle = angle / 2;
     return new(axis * math.sin(h_angle), math.cos(h_angle));
@@ -274,4 +288,15 @@ function from_euler(roll, pitch, yaw)
     pitch = pitch or 0
     yaw = yaw or 0
     return from_axis_angle(vector.new(1, 0, 0), roll) * from_axis_angle(vector.new(0, 1, 0), pitch) * from_axis_angle(vector.new(0, 0, 1), yaw)
+end
+
+function from_components(x, y, z, w)
+    x = x or 0
+    y = y or 0
+    z = z or 0
+    return new(vector.new(x, y, z), w)
+end
+
+function identity()
+    return new()
 end
