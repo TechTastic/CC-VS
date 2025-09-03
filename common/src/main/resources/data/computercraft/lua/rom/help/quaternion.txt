@@ -1,0 +1,23 @@
+Functions in the Quaternion Math API:
+quaternion.new( vector, w )
+quaternion.from_axis_angle( axis, angle )
+quaternion.from_euler( roll, pitch, yaw )
+quaternion.identity()
+
+Quaternions returned by the above methods have the following fields and methods:
+quaternion.v
+quaternion.a
+quaternion:add( quaternion )
+quaternion:sub( quaternion )
+quaternion:mul( scalar or quaternion or vector )
+quaternion:div( scalar or quaternion )
+quaternion:conjugate()
+quaternion:normalize()
+quaternion:inverse()
+quaternion:slerp( target, alpha )
+quaternion:get_angle()
+quaternion:get_axis()
+quaternion:to_euler()
+quaternion:length()
+quaternion:tostring()
+The +, -, *, and / operators can also be used on quaternions.
