@@ -69,9 +69,7 @@ local quaternion = {
             if getmetatable(m).__index == getmetatable(self).__index then
                 -- Quaternion * Quaternion
                 return quaternion.new(
-                    m.v * self.a,
-                    self.v * m.a,
-                    self.v:cross(m.v),
+                    m.v * self.a + self.v * m.a + self.v:cross(m.v),
                     self.a * m.a + -(self.v:dot(m.v))
                 ):normalize()
             else
@@ -241,18 +239,20 @@ local quaternion = {
     -- @usage q:to_euler()
     toEuler = function(self)
         self = self:normalize()
-        -- roll
-        local roll = math.atan2(2 * (self.a * self.v.x + self.v.y * self.v.z), 1 - 2 * (self.v.x * self.v.x + self.v.y * self.v.y))
 
-        local sin_pitch = 2 * (self.a * self.v.y - self.v.z * self.v.x)
-        local pitch
-        if math.abs(sin_pitch) >= 1 then
-            pitch = math.pi / 2 * math.sign(sin_pitch)
-        else
-            pitch = math.asin(sin_pitch)
+        local yaw = math.atan(2 * (self.a * self.v.y - self.v.x * self.v.z), 1 - 2 * (self.v.y * self.v.y + self.v.z * self.v.z))
+        local pitch = math.asin(2 * (self.a * self.v.x + self.v.y * self.v.z))
+        local roll = math.atan(2 * (self.a * self.v.z - self.v.x * self.v.y), 1 - 2 * (self.v.x * self.v.x + self.v.z * self.v.z))
+
+        local singularity_check = 2 * (self.a * self.v.x + self.v.y * self.v.z)
+        if singularity_check > 0.89 then
+            yaw = 2 * math.atan(self.v.y, self.a)
+            roll = 0
         end
-
-        local yaw = math.atan2(2 * (self.a * self.v.z + self.v.x * self.v.y), 1 - 2 * (self.v.y * self.v.y + self.v.z * self.v.z))
+        if singularity_check < -0.89 then
+            yaw = -2 * math.atan(self.v.y, self.a)
+            roll = 0
+        end
 
         return roll, pitch, yaw
     end,
@@ -296,11 +296,11 @@ function fromAxisAngle(axis, angle)
     return new(axis * math.sin(h_angle), math.cos(h_angle));
 end
 
-function fromEuler(roll, pitch, yaw)
+function fromEuler(pitch, yaw, roll)
     roll = roll or 0
     pitch = pitch or 0
     yaw = yaw or 0
-    return from_axis_angle(vector.new(1, 0, 0), roll) * from_axis_angle(vector.new(0, 1, 0), pitch) * from_axis_angle(vector.new(0, 0, 1), yaw)
+    return from_axis_angle(vector.new(0, 1, 0), yaw) * from_axis_angle(vector.new(1, 0, 0), pitch) * from_axis_angle(vector.new(0, 0, 1), roll)
 end
 
 function fromComponents(x, y, z, w)
