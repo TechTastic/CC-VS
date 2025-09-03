@@ -6,6 +6,8 @@
 --
 -- [wiki]: https://en.wikipedia.org/wiki/Quaternion
 --
+-- Special thanks to getItemFromBlock and Shlomo for sharing their own quaternion handling code.
+--
 -- @module quaternion
 -- @since 0.3.0
 
@@ -57,7 +59,7 @@ local quaternion = {
     -- @usage q * v
     mul = function(self, m)
         if type(m) == "table" then
-            if getmetatable(o) == quaternion then
+            if getmetatable(m).__index == getmetatable(self).__index then
                 -- Quaternion * Quaternion
                 return quaternion.new(
                     m.v:mul(self.a),
@@ -70,46 +72,64 @@ local quaternion = {
                 m_q = quaternion.new(m, 0)
                 return (self * m_q * self:conjugate()).v
             end
-        else
+        end
+        if type(m) == "number" then
             -- Quaternion * Scalar
             return quaternion.new(
                 self.v * m,
                 self.a * m
             )
         end
+
+        error("Invalid Argument! Takes a scalar value, a quaternion, or a vector to be rotated.")
     end,
 
     --- Divides a quaternion by another quaternion.
     --
     -- @tparam Quaternion self The quaternion to divide.
-    -- @tparam Quaternion o The quaternion to divide with.
+    -- @tparam Quaternion or number o The quaternion or scalar number to divide with.
     -- @treturn Quaternion The resulting quaternion
     -- @usage q1:div(q2)
     -- @usage q1 / q2
+    -- @usage q:div(2)
+    -- @usage q / 2
     div = function(self, o)
-        return self * o:inverse()
+        if type(m) == "table" and getmetatable(m).__index == getmetatable(self).__index then
+            return self * o:inverse()
+        end
+        if type(m) == "number" then
+            return self * (1 / m)
+        end
+        error("Invalid Argument! Takes a scalar value or a quaternion.")
     end,
 
+    --- Negates a quaternion.
+    --
+    -- @tparam Quaternion self The quaternion to negate.
+    -- @treturn Quaternion The resulting negated quaternion
+    -- @usage q:unm()
+    -- @usage -q
     unm = function(self)
-        return self:mul(-1)
+        return self * -1
     end,
 
-    idiv = function(self, o)
-        quotient = self / o
-        return quaternion.new(
-            vector.new(
-                math.floor(quotient.x),
-                math.floor(quotient.y),
-                math.floor(quotient.z)
-            ),
-            math.floor(quotient.a)
-        )
-    end,
-
+    --- Creates a string representation of the quaternion in the form of w + xi + yj + zk.
+    --
+    -- @tparam Quaternion self The quaternion to stringify.
+    -- @treturn string The resulting string
+    -- @usage q:tostring()
+    -- @usage q .. ""
     tostring = function(self)
         return self.a.." + "..self.v.x.."i + "..self.v.y.."j + "..self.v.z.."k"
     end,
 
+    --- Determines if the given quaternions are equal.
+    --
+    -- @tparam Quaternion self The quaternion to test against.
+    -- @tparam Quaternion o The quaternion to test.
+    -- @treturn boolean The resulting boolean
+    -- @usage q1:equals(q2)
+    -- @usage q1 == q2
     equals = function(self, o)
         return self.v == o.v and self.a == o.a
     end,
@@ -120,7 +140,7 @@ local quaternion = {
     -- @treturn Quaternion The resulting conjugate
     -- @usage q:conjugate()
 	conjugate = function(self)
-		return quaternion.new(-self.v,self.a)
+		return quaternion.new(-self.v, self.a)
 	end,
 
     --- Normalizes the quaternion.
@@ -130,7 +150,7 @@ local quaternion = {
     -- @usage q:normalize()
 	normalize = function(self)
 		local l = self:length()
-		return quaternion.new(self.v:div(l), self.a/l)
+		return quaternion.new(self.v / l, self.a / l)
 	end,
 
     --- Finds the inverse of the quaternion.
@@ -146,24 +166,91 @@ local quaternion = {
 		return tmp:normalize()
 	end,
 
-	lengthSq = function(self)
-		return self.v.x*self.v.x + self.v.y*self.v.y + self.v.z*self.v.z + self.a*self.a
-	end,
+    --- Spherical Linear Interpolation between the given quaternions.
+    --
+    -- @tparam Quaternion self The origin quaternion.
+    -- @tparam Quaternion 0 The target quaternion.
+    -- @tparam number alpha The target step.
+    -- @treturn Quaternion The resulting quaternion
+    -- @usage q1:slerp(q2, alpha)
+	slerp = function(self, o, alpha)
+        local cos_half_theta = self.a * o.a + self.v.x * o.v.x + self.v.y * o.v.y + self.v.z * o.v.z;
+        if cos_half_theta < 0 then
+            o = -o;
+            cos_half_theta = -cos_half_theta;
+        end
+        if math.abs(cos_half_theta) >= 1 then
+            return self
+        end
+        local half_theta = math.acos(cos_half_theta);
+        local sin_half_theta = math.sqrt(1 - cos_half_theta * cos_half_theta);
+        if math.abs(sin_half_theta) < 0.001 then
+            return self * 0.5 + o * 0.5;
+        end
+        local ratio_a = math.sin((1 - alpha) * half_theta) / sin_half_theta;
+        local ratio_b = math.sin(alpha * half_theta) / sin_half_theta;
+        return self * ratio_a + o * ratio_b;
+    end,
+
+    --- Gets the angle from the given quaternion.
+    --
+    -- @tparam Quaternion self The quaternion.
+    -- @treturn number The resulting angle
+    -- @usage q:get_angle()
+    get_angle = function(self)
+        return 2 * math.acos(self.a)
+    end,
+
+    --- Gets the axis from the given quaternion.
+    --
+    -- @tparam Quaternion self The quaternion.
+    -- @treturn Vector The resulting axis
+    -- @usage q:get_axis()
+    get_axis = function(self)
+        local factor = math.sqrt(1 - self.a * self.a)
+        if factor == 0 then
+            factor = 1
+        end
+        return self.v / factor
+    end,
+
+    --- Gets the roll, pitch, and yaw from the given quaternion in radians.
+    --
+    -- @tparam Quaternion self The quaternion.
+    -- @treturn number Roll
+    -- @treturn number Pitch
+    -- @treturn number Yaw
+    -- @usage q:to_euler()
+    to_euler = function(self)
+        -- roll
+        local roll = math.atan2(2 * (self.a * self.v.x + self.v.y * self.v.z), 1 - 2 * (self.v.x * self.v.x + self.v.y * self.v.y))
+
+        local sin_pitch = 2 * (self.a * self.v.y - self.v.z * self.v.x)
+        local pitch
+        if math.abs(sin_pitch) >= 1 then
+            pitch = math.pi / 2 * math.sign(sin_pitch)
+        else
+            pitch = math.asin(sin_pitch)
+        end
+
+        local yaw = math.atan2(2 * (self.a * self.v.z + self.v.x * self.v.y), 1 - 2 * (self.v.y * self.v.y + self.v.z * self.v.z))
+
+        return roll, pitch, yaw
+    end,
 
 	len = function(self)
-		return math.sqrt(self:lengthSq())
+		return math.sqrt(self.a ^ 2 + self.v.x ^ 2 + self.v.y ^ 2 + self.v.z ^ 2)
 	end,
 }
 
 local vmetatable = {
     __index = quaternion,
     __add = quaternion.add,
-    __sub = vector.sub,
+    __sub = quaternion.sub,
     __mul = quaternion.mul,
     __div = quaternion.div,
     __unm = quaternion.unm,
-    __idiv = quaternion.idiv
-    __len = quaternion.len
+    __len = quaternion.len,
     __tostring = quaternion.tostring,
     __eq = quaternion.equals,
 }
@@ -173,4 +260,18 @@ function new(vec, w)
         v = vec or vector.new(),
         a = tonumber(w) or 1,
     }, vmetatable)
+end
+
+function from_axis_angle(axis, angle)
+    axis = axis or vector.new()
+    angle = angle or 0
+    local h_angle = angle / 2;
+    return new(axis * math.sin(h_angle), math.cos(h_angle));
+end
+
+function from_euler(roll, pitch, yaw)
+    roll = roll or 0
+    pitch = pitch or 0
+    yaw = yaw or 0
+    return from_axis_angle(vector.new(1, 0, 0), roll) * from_axis_angle(vector.new(0, 1, 0), pitch) * from_axis_angle(vector.new(0, 0, 1), yaw)
 end
