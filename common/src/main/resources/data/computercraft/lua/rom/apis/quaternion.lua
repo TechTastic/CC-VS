@@ -244,7 +244,7 @@ local quaternion = {
         return roll, pitch, yaw
     end,
 
-	len = function(self)
+	length = function(self)
 		return math.sqrt(self.a ^ 2 + self.v.x ^ 2 + self.v.y ^ 2 + self.v.z ^ 2)
 	end,
 
@@ -260,7 +260,7 @@ local vmetatable = {
     __mul = quaternion.mul,
     __div = quaternion.div,
     __unm = quaternion.unm,
-    __len = quaternion.len,
+    __len = quaternion.length,
     __tostring = quaternion.tostring,
     __eq = quaternion.equals,
 }
