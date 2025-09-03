@@ -26,6 +26,9 @@ local quaternion = {
     -- @usage q1:add(q2)
     -- @usage q1 + q2
     add = function(self, o)
+        if type(o) ~= "table" or getmetatable(o).__index ~= getmetatable(self).__index then
+            error("Invalid Argument! Takes another quaternion!")
+        end
         return quaternion.new(
             self.v:add(o.v),
             self.a + o.a
@@ -40,6 +43,9 @@ local quaternion = {
     -- @usage q1:sub(q2)
     -- @usage q1 - q2
     sub = function(self, o)
+        if type(o) ~= "table" or getmetatable(o).__index ~= getmetatable(self).__index then
+            error("Invalid Argument! Takes another quaternion!")
+        end
         return quaternion.new(
             self.v:sub(o.v),
             self.a - o.a
@@ -133,6 +139,9 @@ local quaternion = {
     -- @usage q1:equals(q2)
     -- @usage q1 == q2
     equals = function(self, o)
+        if type(o) ~= "table" or getmetatable(o).__index ~= getmetatable(self).__index then
+            error("Invalid Argument! Takes another quaternion!")
+        end
         return self.v == o.v and self.a == o.a
     end,
 
@@ -175,6 +184,10 @@ local quaternion = {
     -- @treturn Quaternion The resulting quaternion
     -- @usage q1:slerp(q2, alpha)
 	slerp = function(self, o, alpha)
+        if type(o) ~= "table" or getmetatable(o).__index ~= getmetatable(self).__index or type(alpha) ~= "number" then
+            error("Invalid Arguments! Takes a target quaternion and an alpha number!")
+        end
+
         self = self:normalize()
         o = o:normalize()
         local cos_half_theta = self.a * o.a + self.v.x * o.v.x + self.v.y * o.v.y + self.v.z * o.v.z;
