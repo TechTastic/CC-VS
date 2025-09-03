@@ -213,7 +213,7 @@ local quaternion = {
     -- @tparam Quaternion self The quaternion.
     -- @treturn number The resulting angle
     -- @usage q:get_angle()
-    get_angle = function(self)
+    getAngle = function(self)
         self = self:normalize()
         return 2 * math.acos(self.a)
     end,
@@ -223,7 +223,7 @@ local quaternion = {
     -- @tparam Quaternion self The quaternion.
     -- @treturn Vector The resulting axis
     -- @usage q:get_axis()
-    get_axis = function(self)
+    getAxis = function(self)
         self = self:normalize()
         local factor = math.sqrt(1 - self.a * self.a)
         if factor == 0 then
@@ -239,7 +239,7 @@ local quaternion = {
     -- @treturn number Pitch
     -- @treturn number Yaw
     -- @usage q:to_euler()
-    to_euler = function(self)
+    toEuler = function(self)
         self = self:normalize()
         -- roll
         local roll = math.atan2(2 * (self.a * self.v.x + self.v.y * self.v.z), 1 - 2 * (self.v.x * self.v.x + self.v.y * self.v.y))
@@ -261,7 +261,7 @@ local quaternion = {
 		return math.sqrt(self.a ^ 2 + self.v.x ^ 2 + self.v.y ^ 2 + self.v.z ^ 2)
 	end,
 
-	is_nan = function(self)
+	isNan = function(self)
         return not (self.a ~= self.a or self.v.x ~= self.v.x or self.v.y ~= self.v.y or self.v.z ~= self.v.z)
     end
 }
@@ -285,7 +285,7 @@ function new(vec, w)
     }, vmetatable)
 end
 
-function from_axis_angle(axis, angle)
+function fromAxisAngle(axis, angle)
     if not axis then
         axis = vector.new()
     else
@@ -296,18 +296,26 @@ function from_axis_angle(axis, angle)
     return new(axis * math.sin(h_angle), math.cos(h_angle));
 end
 
-function from_euler(roll, pitch, yaw)
+function fromEuler(roll, pitch, yaw)
     roll = roll or 0
     pitch = pitch or 0
     yaw = yaw or 0
     return from_axis_angle(vector.new(1, 0, 0), roll) * from_axis_angle(vector.new(0, 1, 0), pitch) * from_axis_angle(vector.new(0, 0, 1), yaw)
 end
 
-function from_components(x, y, z, w)
+function fromComponents(x, y, z, w)
     x = x or 0
     y = y or 0
     z = z or 0
     return new(vector.new(x, y, z), w)
+end
+
+function fromShip()
+    if not ship then
+        error("This method requires the ship API added by CC: VS when a computer is on a Ship!")
+    end
+    local q = ship.getQuaternion()
+    return fromComponents(q.x, q.y, q.z, q.w)
 end
 
 function identity()
