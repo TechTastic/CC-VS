@@ -57,7 +57,7 @@ local quaternion = {
     -- @tparam Quaternion self The quaternion to multiply.
     -- @tparam number, Quaternion, or Vector m The scalar value, quaternion, or vector to multiply with.
     -- @treturn Quaternion or Vector The resulting quaternion or rotated vector
-    -- Note: If using a scalar value, the resulting quaternion will be non-normalized.
+    --      Note: If using a scalar value, the resulting quaternion will be non-normalized.
     -- @usage q:mul(3)
     -- @usage q * 3
     -- @usage q1:mul(q2)
@@ -94,7 +94,7 @@ local quaternion = {
     -- @tparam Quaternion self The quaternion to divide.
     -- @tparam Quaternion or number o The quaternion or scalar number to divide with.
     -- @treturn Quaternion The resulting quaternion
-    -- Note: If using a scalar value, the resulting quaternion will be non-normalized.
+    --      Note: If using a scalar value, the resulting quaternion will be non-normalized.
     -- @usage q1:div(q2)
     -- @usage q1 / q2
     -- @usage q:div(2)
@@ -210,7 +210,7 @@ local quaternion = {
     --
     -- @tparam Quaternion self The quaternion.
     -- @treturn number The resulting angle
-    -- @usage q:get_angle()
+    -- @usage q:getAngle()
     getAngle = function(self)
         self = self:normalize()
         return 2 * math.acos(self.a)
@@ -220,7 +220,7 @@ local quaternion = {
     --
     -- @tparam Quaternion self The quaternion.
     -- @treturn Vector The resulting axis
-    -- @usage q:get_axis()
+    -- @usage q:getAxis()
     getAxis = function(self)
         self = self:normalize()
         local factor = math.sqrt(1 - self.a * self.a)
@@ -236,7 +236,7 @@ local quaternion = {
     -- @treturn number Roll
     -- @treturn number Pitch
     -- @treturn number Yaw
-    -- @usage q:to_euler()
+    -- @usage q:toEuler()
     toEuler = function(self)
         self = self:normalize()
 
@@ -257,14 +257,30 @@ local quaternion = {
         return roll, pitch, yaw
     end,
 
+    -- Determines the length of the quaternion.
+    --
+    -- @tparam Quaternion self The quaternion to measure.
+    -- @treturn number The length of the quaternion
+    -- @usage q:length()
+    -- @usage #q
 	length = function(self)
 		return math.sqrt(self.a ^ 2 + self.v.x ^ 2 + self.v.y ^ 2 + self.v.z ^ 2)
 	end,
 
+    -- Determines if any component of the quaternion is NaN.
+    --
+    -- @tparam Quaternion self The quaternion to test.
+    -- @treturn boolean If the quaternion is NaN
+    -- @usage q:isNan()
 	isNan = function(self)
         return self.a ~= self.a or self.v.x ~= self.v.x or self.v.y ~= self.v.y or self.v.z ~= self.v.z
     end,
 
+    -- Determines if any component of the quaternion is infinite.
+    --
+    -- @tparam Quaternion self The quaternion to test.
+    -- @treturn boolean If the quaternion is infinite
+    -- @usage q:isInf()
     isInf = function(self)
         local inf = 1/0
         return math.abs(self.a) == inf or math.abs(self.v.x) == inf or math.abs(self.v.y) == inf or math.abs(self.v.z) == inf
