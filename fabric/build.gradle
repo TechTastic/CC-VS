@@ -39,7 +39,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    modImplementation("curse.maven:cc-restitched-462672:3838648")
+    modImplementation("com.github.cc-tweaked:cc-restitched:v${project.minecraft_version}-${project.cc_version}-ccr") { transitive = false }
 
     include(modImplementation("curse.maven:forge-config-api-547434:3943250"))
 

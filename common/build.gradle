@@ -23,7 +23,7 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"
     api "org.jetbrains.kotlin:kotlin-reflect:1.9.10"
 
-    modCompileOnly("curse.maven:cc-restitched-462672:3838648")
+    modCompileOnly("com.github.cc-tweaked:cc-restitched:v${project.minecraft_version}-${project.cc_version}-ccr") { transitive = false }
 
     modImplementation("curse.maven:forge-config-api-547434:3943250")
 }

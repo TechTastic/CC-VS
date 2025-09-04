@@ -42,6 +42,13 @@ configurations {
             developmentForge.extendsFrom common
 }
 
+repositories {
+    maven {
+        name = "Squiddev maven cct"
+        url = 'https://squiddev.cc/maven/'
+    }
+}
+
 dependencies {
     forge "net.minecraftforge:forge:$forge_version"
 
@@ -59,7 +66,7 @@ dependencies {
 
     implementation "thedarkcolour:kotlinforforge:$forge_kotlin_version"
 
-    modImplementation("curse.maven:cc-tweaked-282001:4630521")
+    modImplementation("org.squiddev:cc-tweaked-${minecraft_version}:${cc_version}")
 }
 
 processResources {
