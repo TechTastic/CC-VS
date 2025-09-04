@@ -262,7 +262,12 @@ local quaternion = {
 	end,
 
 	isNan = function(self)
-        return not (self.a ~= self.a or self.v.x ~= self.v.x or self.v.y ~= self.v.y or self.v.z ~= self.v.z)
+        return self.a ~= self.a or self.v.x ~= self.v.x or self.v.y ~= self.v.y or self.v.z ~= self.v.z
+    end,
+
+    isInf = function(self)
+        local inf = 1/0
+        return math.abs(self.a) == inf or math.abs(self.v.x) == inf or math.abs(self.v.y) == inf or math.abs(self.v.z) == inf
     end
 }
 

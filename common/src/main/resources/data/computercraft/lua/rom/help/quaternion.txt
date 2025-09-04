@@ -19,6 +19,8 @@ quaternion:slerp( target, alpha )
 quaternion:getAngle()
 quaternion:getAxis()
 quaternion:toEuler()
+quaternion:isNan()
+quaternion:isInf()
 quaternion:length()
 quaternion:tostring()
 The +, -, *, and / operators can also be used on quaternions.
