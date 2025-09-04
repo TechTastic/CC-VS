@@ -24,3 +24,5 @@ quaternion:isInf()
 quaternion:length()
 quaternion:tostring()
 The +, -, *, and / operators can also be used on quaternions.
+
+Note: When using a scalar value, both mul and div will return non-normalized quaternions
