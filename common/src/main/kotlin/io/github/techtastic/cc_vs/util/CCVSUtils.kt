@@ -1,5 +1,6 @@
 package io.github.techtastic.cc_vs.util
 
+import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.shared.computer.core.ComputerFamily
 import dan200.computercraft.shared.computer.core.ServerComputer
 import io.github.techtastic.cc_vs.PlatformUtils
@@ -8,6 +9,7 @@ import io.github.techtastic.cc_vs.apis.ShipAPI
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import org.joml.Matrix3dc
+import org.joml.Quaterniond
 import org.joml.Quaterniondc
 import org.joml.Vector3d
 import org.joml.Vector3dc
@@ -120,5 +122,12 @@ object CCVSUtils {
         }
 
         return constraint
+    }
+
+    fun Map<*, *>.toVector(): Vector3dc {
+        val posTable = this as? Map<String, Double>
+            ?: throw LuaException("Invalid Argument! Expects either a vector or a table with x, y, and z keys!")
+
+        return Vector3d(posTable["x"] ?: 0.0, posTable["y"] ?: 0.0, posTable["z"] ?: 0.0)
     }
 }

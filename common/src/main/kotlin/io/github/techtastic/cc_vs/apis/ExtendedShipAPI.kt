@@ -7,6 +7,7 @@ import dan200.computercraft.core.apis.IAPIEnvironment
 import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.ship.PhysTickEventHandler
 import io.github.techtastic.cc_vs.ship.QueuedForcesApplier
+import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
 import net.minecraft.server.level.ServerLevel
 import org.joml.Quaterniond
 import org.joml.Quaterniondc
@@ -31,8 +32,20 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
     }
 
     @LuaFunction
+    fun applyInvariantForce(force: Map<*,*>) {
+        val newVec = force.toVector()
+        applyInvariantForce(newVec.x(), newVec.y(), newVec.z())
+    }
+
+    @LuaFunction
     fun applyInvariantTorque(xTorque: Double, yTorque: Double, zTorque: Double) {
         this.control.applyInvariantTorque(Vector3d(xTorque, yTorque, zTorque))
+    }
+
+    @LuaFunction
+    fun applyInvariantTorque(torque: Map<*,*>) {
+        val newVec = torque.toVector()
+        applyInvariantForce(newVec.x(), newVec.y(), newVec.z())
     }
 
     @LuaFunction
@@ -41,8 +54,21 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
     }
 
     @LuaFunction
+    fun applyInvariantForceToPos(force: Map<*,*>, pos: Map<*,*>) {
+        val newForce = force.toVector()
+        val newPos = pos.toVector()
+        applyInvariantForceToPos(newForce.x(), newForce.y(), newForce.z(), newPos.x(), newPos.y(), newPos.z())
+    }
+
+    @LuaFunction
     fun applyRotDependentForce(xForce: Double, yForce: Double, zForce: Double) {
         this.control.applyRotDependentForce(Vector3d(xForce, yForce, zForce))
+    }
+
+    @LuaFunction
+    fun applyRotDependentForce(force: Map<*,*>) {
+        val newVec = force.toVector()
+        applyRotDependentForce(newVec.x(), newVec.y(), newVec.z())
     }
 
     @LuaFunction
@@ -51,8 +77,21 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
     }
 
     @LuaFunction
+    fun applyRotDependentTorque(torque: Map<*,*>) {
+        val newVec = torque.toVector()
+        applyRotDependentTorque(newVec.x(), newVec.y(), newVec.z())
+    }
+
+    @LuaFunction
     fun applyRotDependentForceToPos(xForce: Double, yForce: Double, zForce: Double, xPos: Double, yPos: Double, zPos: Double) {
         this.control.applyRotDependentForceToPos(Vector3d(xForce, yForce, zForce), Vector3d(xPos, yPos, zPos))
+    }
+
+    @LuaFunction
+    fun applyRotDependentForceToPos(force: Map<*,*>, pos: Map<*,*>) {
+        val newForce = force.toVector()
+        val newPos = pos.toVector()
+        applyRotDependentForceToPos(newForce.x(), newForce.y(), newForce.z(), newPos.x(), newPos.y(), newPos.z())
     }
 
     @LuaFunction
