@@ -1,7 +1,8 @@
 Functions in the Quaternion Math API:
 quaternion.new( vector, w )
 quaternion.fromAxisAngle( axis, angle )
-quaternion.fromEuler( roll, pitch, yaw )
+quaternion.fromEuler( pitch, yaw, roll )
+quaternion.fromComponents( x, y, z, w )
 quaternion.fromShip()
 quaternion.identity()
 
@@ -12,17 +13,20 @@ quaternion:add( quaternion )
 quaternion:sub( quaternion )
 quaternion:mul( scalar or quaternion or vector )
 quaternion:div( scalar or quaternion )
+quaternion:unm()
+quaternion:tostring()
+quaternion:equals()
 quaternion:conjugate()
 quaternion:normalize()
 quaternion:inverse()
-quaternion:slerp( target, alpha )
+quaternion:slerp( other, alpha )
 quaternion:getAngle()
 quaternion:getAxis()
 quaternion:toEuler()
+quaternion:length()
 quaternion:isNan()
 quaternion:isInf()
-quaternion:length()
-quaternion:tostring()
-The +, -, *, and / operators can also be used on quaternions.
+quaternion:copy()
+The +, -, *, / and # operators can also be used on quaternions.
 
 Note: When using a scalar value, both mul and div will return non-normalized quaternions
