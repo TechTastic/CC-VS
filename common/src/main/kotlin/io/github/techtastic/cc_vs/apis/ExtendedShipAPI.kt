@@ -9,6 +9,7 @@ import io.github.techtastic.cc_vs.ship.PhysTickEventHandler
 import io.github.techtastic.cc_vs.ship.QueuedForcesApplier
 import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
 import net.minecraft.server.level.ServerLevel
+import org.checkerframework.common.reflection.qual.NewInstance
 import org.joml.Quaterniond
 import org.joml.Quaterniondc
 import org.joml.Vector3d
@@ -27,71 +28,69 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
     }
 
     @LuaFunction
-    fun applyInvariantForce(xForce: Double, yForce: Double, zForce: Double) {
-        this.control.applyInvariantForce(Vector3d(xForce, yForce, zForce))
+    fun applyInvariantForce(args: IArguments) {
+        val newForce =
+            if (args.count() == 1)
+                args.getTable(0).toVector()
+            else
+                Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
+        this.control.applyInvariantForce(newForce)
     }
 
     @LuaFunction
-    fun applyInvariantForce(force: Map<*,*>) {
-        val newVec = force.toVector()
-        applyInvariantForce(newVec.x(), newVec.y(), newVec.z())
+    fun applyInvariantTorque(args: IArguments) {
+        val newTorque =
+            if (args.count() == 1)
+                args.getTable(0).toVector()
+            else
+                Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
+        this.control.applyInvariantTorque(newTorque)
     }
 
     @LuaFunction
-    fun applyInvariantTorque(xTorque: Double, yTorque: Double, zTorque: Double) {
-        this.control.applyInvariantTorque(Vector3d(xTorque, yTorque, zTorque))
+    fun applyInvariantForceToPos(args: IArguments) {
+        val (newForce, newPos) =
+            if (args.count() == 2)
+                Pair(args.getTable(0).toVector(), args.getTable(1).toVector())
+            else
+                Pair(
+                    Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2)),
+                    Vector3d(args.getDouble(3), args.getDouble(4), args.getDouble(5))
+                )
+        this.control.applyInvariantForceToPos(newForce, newPos)
     }
 
     @LuaFunction
-    fun applyInvariantTorque(torque: Map<*,*>) {
-        val newVec = torque.toVector()
-        applyInvariantForce(newVec.x(), newVec.y(), newVec.z())
+    fun applyRotDependentForce(args: IArguments) {
+        val newForce =
+            if (args.count() == 1)
+                args.getTable(0).toVector()
+            else
+                Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
+        this.control.applyRotDependentForce(newForce)
     }
 
     @LuaFunction
-    fun applyInvariantForceToPos(xForce: Double, yForce: Double, zForce: Double, xPos: Double, yPos: Double, zPos: Double) {
-        this.control.applyInvariantForceToPos(Vector3d(xForce, yForce, zForce), Vector3d(xPos, yPos, zPos))
+    fun applyRotDependentTorque(args: IArguments) {
+        val newTorque =
+            if (args.count() == 1)
+                args.getTable(0).toVector()
+            else
+                Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
+        this.control.applyRotDependentTorque(newTorque)
     }
 
     @LuaFunction
-    fun applyInvariantForceToPos(force: Map<*,*>, pos: Map<*,*>) {
-        val newForce = force.toVector()
-        val newPos = pos.toVector()
-        applyInvariantForceToPos(newForce.x(), newForce.y(), newForce.z(), newPos.x(), newPos.y(), newPos.z())
-    }
-
-    @LuaFunction
-    fun applyRotDependentForce(xForce: Double, yForce: Double, zForce: Double) {
-        this.control.applyRotDependentForce(Vector3d(xForce, yForce, zForce))
-    }
-
-    @LuaFunction
-    fun applyRotDependentForce(force: Map<*,*>) {
-        val newVec = force.toVector()
-        applyRotDependentForce(newVec.x(), newVec.y(), newVec.z())
-    }
-
-    @LuaFunction
-    fun applyRotDependentTorque(xTorque: Double, yTorque: Double, zTorque: Double) {
-        this.control.applyRotDependentTorque(Vector3d(xTorque, yTorque, zTorque))
-    }
-
-    @LuaFunction
-    fun applyRotDependentTorque(torque: Map<*,*>) {
-        val newVec = torque.toVector()
-        applyRotDependentTorque(newVec.x(), newVec.y(), newVec.z())
-    }
-
-    @LuaFunction
-    fun applyRotDependentForceToPos(xForce: Double, yForce: Double, zForce: Double, xPos: Double, yPos: Double, zPos: Double) {
-        this.control.applyRotDependentForceToPos(Vector3d(xForce, yForce, zForce), Vector3d(xPos, yPos, zPos))
-    }
-
-    @LuaFunction
-    fun applyRotDependentForceToPos(force: Map<*,*>, pos: Map<*,*>) {
-        val newForce = force.toVector()
-        val newPos = pos.toVector()
-        applyRotDependentForceToPos(newForce.x(), newForce.y(), newForce.z(), newPos.x(), newPos.y(), newPos.z())
+    fun applyRotDependentForceToPos(args: IArguments) {
+        val (newForce, newPos) =
+            if (args.count() == 2)
+                Pair(args.getTable(0).toVector(), args.getTable(1).toVector())
+            else
+                Pair(
+                    Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2)),
+                    Vector3d(args.getDouble(3), args.getDouble(4), args.getDouble(5))
+                )
+        this.control.applyRotDependentForceToPos(newForce, newPos)
     }
 
     @LuaFunction

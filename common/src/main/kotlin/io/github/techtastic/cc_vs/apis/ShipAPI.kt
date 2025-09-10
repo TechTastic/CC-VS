@@ -86,14 +86,13 @@ open class ShipAPI(val ship: ServerShip, val level: ServerLevel) : ILuaAPI {
         this.ship.transform.positionInWorld.toLua()
 
     @LuaFunction
-    fun transformPositionToWorld(x: Double, y: Double, z: Double): Map<String, Double> =
-        this.ship.shipToWorld.transformPosition(Vector3d(x, y, z)).toLua()
-
-    @LuaFunction
-    fun transformPositionToWorld(table: Map<*,*>): Map<String, Double> {
-        val pos = table.toVector()
-
-        return transformPositionToWorld(pos.x(), pos.y(), pos.z())
+    fun transformPositionToWorld(args: IArguments): Map<String, Double> {
+        val pos =
+            if (args.count() == 1)
+                Vector3d(args.getTable(0).toVector())
+            else
+                Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
+        return this.ship.shipToWorld.transformPosition(pos).toLua()
     }
 
     @LuaFunction
