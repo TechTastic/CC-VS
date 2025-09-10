@@ -1,16 +1,23 @@
 package io.github.techtastic.cc_vs.apis
 
+import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.ILuaAPI
+import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import io.github.techtastic.cc_vs.mixin.ShipObjectWorldAccessor
+import io.github.techtastic.cc_vs.util.CCVSUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils.toLua
+import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.phys.Vec3
 import org.joml.Vector3d
 import org.joml.Vector4d
 import org.joml.primitives.AABBi
 import org.valkyrienskies.core.api.ships.ServerShip
+import org.valkyrienskies.core.apigame.constraints.VSAttachmentConstraint
 import org.valkyrienskies.core.apigame.constraints.VSConstraintAndId
 import org.valkyrienskies.mod.common.shipObjectWorld
+import org.valkyrienskies.mod.common.util.toJOML
 import kotlin.math.asin
 import kotlin.math.atan2
 
@@ -42,7 +49,7 @@ open class ShipAPI(val ship: ServerShip, val level: ServerLevel) : ILuaAPI {
         this.ship.inertiaData.momentOfInertiaTensor.toLua()
 
     @LuaFunction
-    fun getName(): String = this.ship.slug ?: "no-name"
+    fun getSlug(): String = this.ship.slug ?: "no-name"
 
     @LuaFunction
     fun getOmega(): Map<String, Double> =
@@ -51,22 +58,6 @@ open class ShipAPI(val ship: ServerShip, val level: ServerLevel) : ILuaAPI {
     @LuaFunction
     fun getQuaternion(): Map<String, Double> =
         this.ship.transform.shipToWorldRotation.toLua()
-
-    @LuaFunction
-    fun getEulerAnglesXYZ() =
-        this.ship.transform.shipToWorldRotation.getEulerAnglesXYZ(Vector3d()).toLua()
-
-    @LuaFunction
-    fun getEulerAnglesYXZ() =
-        this.ship.transform.shipToWorldRotation.getEulerAnglesYXZ(Vector3d()).toLua()
-
-    @LuaFunction
-    fun getEulerAnglesZXY() =
-        this.ship.transform.shipToWorldRotation.getEulerAnglesZXY(Vector3d()).toLua()
-
-    @LuaFunction
-    fun getEulerAnglesZYX() =
-        this.ship.transform.shipToWorldRotation.getEulerAnglesZYX(Vector3d()).toLua()
 
     @LuaFunction
     fun getScale(): Map<String, Double> =
@@ -95,14 +86,20 @@ open class ShipAPI(val ship: ServerShip, val level: ServerLevel) : ILuaAPI {
         this.ship.transform.positionInWorld.toLua()
 
     @LuaFunction
-    fun transformPositionToWorld(x: Double, y: Double, z: Double): Map<String, Double> =
-        this.ship.shipToWorld.transformPosition(Vector3d(x, y, z)).toLua()
+    fun transformPositionToWorld(args: IArguments): Map<String, Double> {
+        val pos =
+            if (args.count() == 1)
+                Vector3d(args.getTable(0).toVector())
+            else
+                Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
+        return this.ship.shipToWorld.transformPosition(pos).toLua()
+    }
 
     @LuaFunction
     fun isStatic(): Boolean = this.ship.isStatic
 
     @LuaFunction
-    fun setName(name: String) {
+    fun setSlug(name: String) {
         this.ship.slug = name
     }
 
