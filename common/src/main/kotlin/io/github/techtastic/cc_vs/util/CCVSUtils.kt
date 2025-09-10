@@ -1,6 +1,7 @@
 package io.github.techtastic.cc_vs.util
 
 import dan200.computercraft.api.lua.ILuaAPI
+import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.core.apis.IAPIEnvironment
 import dan200.computercraft.shared.computer.core.ComputerFamily
@@ -139,5 +140,13 @@ object CCVSUtils {
         }
 
         return constraint
+    }
+
+
+    fun Map<*, *>.toVector(): Vector3dc {
+        val posTable = this as? Map<String, Double>
+            ?: throw LuaException("Invalid Argument! Expects either a vector or a table with x, y, and z keys!")
+
+        return Vector3d(posTable["x"] ?: 0.0, posTable["y"] ?: 0.0, posTable["z"] ?: 0.0)
     }
 }
