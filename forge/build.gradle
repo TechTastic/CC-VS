@@ -59,7 +59,10 @@ dependencies {
 
     implementation "thedarkcolour:kotlinforforge:$forge_kotlin_version"
 
-    modImplementation("curse.maven:cc-tweaked-282001:5714507")
+    //modImplementation("curse.maven:cc-tweaked-282001:5714507")
+    compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-core-api:$cct_version")
+    modCompileOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge-api:$cct_version")
+    modRuntimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge:$cct_version")
 }
 
 processResources {

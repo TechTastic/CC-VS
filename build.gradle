@@ -105,6 +105,12 @@ allprojects {
                 includeGroup "curse.maven"
             }
         }
+        maven {
+            url "https://maven.squiddev.cc"
+            content {
+                includeGroup("cc.tweaked")
+            }
+        }
     }
 
     tasks.withType(JavaCompile) {

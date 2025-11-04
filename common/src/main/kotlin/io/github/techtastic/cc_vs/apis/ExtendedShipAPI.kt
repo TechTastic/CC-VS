@@ -1,6 +1,7 @@
 package io.github.techtastic.cc_vs.apis
 
 import dan200.computercraft.api.lua.IArguments
+import dan200.computercraft.api.lua.IComputerSystem
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.core.apis.IAPIEnvironment
@@ -16,15 +17,35 @@ import org.joml.Vector3d
 import org.joml.Vector3dc
 import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl
+import org.valkyrienskies.mod.common.getShipObjectManagingPos
 import org.valkyrienskies.mod.common.shipObjectWorld
 import org.valkyrienskies.mod.common.vsCore
 
-class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level: ServerLevel) : ShipAPI(ship, level) {
-    var control: QueuedForcesApplier = QueuedForcesApplier.getOrCreateControl(this.ship)
+class ExtendedShipAPI(system: IComputerSystem) : ShipAPI(system) {
+    override fun startup() {
+        try {
+            if (PlatformUtils.exposePhysTick())
+                PhysTickEventHandler.getOrCreateControl(getShip())
+        } catch (_: LuaException) {}
+        super.startup()
+    }
 
-    init {
-        if (PlatformUtils.exposePhysTick())
-            PhysTickEventHandler.getOrCreateControl(this.ship).addComputer(api.computerID)
+    override fun update() {
+        try {
+            if (PlatformUtils.exposePhysTick()) {
+                val data = PhysTickEventHandler.getOrCreateControl(getShip()).getData()
+                system.queueEvent("physics_ticks", *data)
+            }
+        } catch (_: LuaException) {}
+        super.update()
+    }
+
+    override fun shutdown() {
+        try {
+            if (PlatformUtils.exposePhysTick())
+                PhysTickEventHandler.getOrCreateControl(getShip())
+        } catch (_: LuaException) {}
+        super.shutdown()
     }
 
     @LuaFunction
@@ -34,7 +55,7 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
                 args.getTable(0).toVector()
             else
                 Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
-        this.control.applyInvariantForce(newForce)
+        QueuedForcesApplier.getOrCreateControl(getShip()).applyInvariantForce(newForce)
     }
 
     @LuaFunction
@@ -44,7 +65,7 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
                 args.getTable(0).toVector()
             else
                 Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
-        this.control.applyInvariantTorque(newTorque)
+        QueuedForcesApplier.getOrCreateControl(getShip()).applyInvariantTorque(newTorque)
     }
 
     @LuaFunction
@@ -57,7 +78,7 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
                     Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2)),
                     Vector3d(args.getDouble(3), args.getDouble(4), args.getDouble(5))
                 )
-        this.control.applyInvariantForceToPos(newForce, newPos)
+        QueuedForcesApplier.getOrCreateControl(getShip()).applyInvariantForceToPos(newForce, newPos)
     }
 
     @LuaFunction
@@ -67,7 +88,7 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
                 args.getTable(0).toVector()
             else
                 Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
-        this.control.applyRotDependentForce(newForce)
+        QueuedForcesApplier.getOrCreateControl(getShip()).applyRotDependentForce(newForce)
     }
 
     @LuaFunction
@@ -77,7 +98,7 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
                 args.getTable(0).toVector()
             else
                 Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
-        this.control.applyRotDependentTorque(newTorque)
+        QueuedForcesApplier.getOrCreateControl(getShip()).applyRotDependentTorque(newTorque)
     }
 
     @LuaFunction
@@ -90,17 +111,17 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
                     Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2)),
                     Vector3d(args.getDouble(3), args.getDouble(4), args.getDouble(5))
                 )
-        this.control.applyRotDependentForceToPos(newForce, newPos)
+        QueuedForcesApplier.getOrCreateControl(getShip()).applyRotDependentForceToPos(newForce, newPos)
     }
 
     @LuaFunction
     fun setStatic(b: Boolean) {
-        this.control.setStatic(b)
+        QueuedForcesApplier.getOrCreateControl(getShip()).setStatic(b)
     }
 
     @LuaFunction
     fun setScale(scale: Double) {
-        vsCore.scaleShip(level.shipObjectWorld, ship, scale)
+        vsCore.scaleShip(system.level.shipObjectWorld, getShip(), scale)
     }
 
     @LuaFunction
@@ -110,19 +131,19 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
 
         val input = args.getTable(0)
 
-        var pos = this.ship.transform.positionInWorld
+        var pos = getShip().transform.positionInWorld
         if (input.containsKey("pos"))
             pos = getVectorFromTable(input, "pos")
 
-        var rot = this.ship.transform.shipToWorldRotation
+        var rot = getShip().transform.shipToWorldRotation
         if (input.containsKey("rot"))
             rot = getQuaternionFromTable(input).normalize(Quaterniond())
 
-        var vel = this.ship.velocity
+        var vel = getShip().velocity
         if (input.containsKey("vel"))
             vel = getVectorFromTable(input, "vel")
 
-        var omega = this.ship.omega
+        var omega = getShip().omega
         if (input.containsKey("omega"))
             omega = getVectorFromTable(input, "omega")
 
@@ -130,7 +151,7 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
         if (input.containsKey("dimension"))
             dimension = (input["dimension"] ?: throwMalformedSectionError("dimension")) as String
 
-        var scale = this.ship.transform.shipToWorldScaling.x()
+        var scale = getShip().transform.shipToWorldScaling.x()
         if (input.containsKey("scale"))
             scale = (input["scale"] ?: throwMalformedSectionError("scale")) as Double
 
@@ -138,8 +159,8 @@ class ExtendedShipAPI(private val api: IAPIEnvironment, ship: ServerShip, level:
 
         println("Rot: ${teleportData.newRot}\n")
 
-        //vsCore.teleportShip(this.level.shipObjectWorld, this.ship, teleportData)
-        this.level.shipObjectWorld.teleportShip(this.ship, teleportData)
+        //vsCore.teleportShip(this.level.shipObjectWorld, getShip(), teleportData)
+        system.level.shipObjectWorld.teleportShip(getShip(), teleportData)
     }
 
     private fun getVectorFromTable(input: Map<*, *>, section: String): Vector3dc {

@@ -39,7 +39,9 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    modImplementation("curse.maven:cc-tweaked-282001:5714509")
+    //modImplementation("curse.maven:cc-tweaked-282001:5714509")
+    modCompileOnly("cc.tweaked:cc-tweaked-$minecraft_version-fabric-api:$cct_version")
+    modRuntimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-fabric:$cct_version")
 
     include(modImplementation("curse.maven:forge-config-api-547434:4583000"))
 

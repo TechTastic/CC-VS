@@ -18,7 +18,7 @@ import org.valkyrienskies.core.apigame.constraints.*
 import org.valkyrienskies.mod.common.getShipManagingPos
 
 object CCVSUtils {
-    fun applyShipAPIsToComputer(computer: ServerComputer, level: ServerLevel, ship: ServerShip?) {
+    /*fun applyShipAPIsToComputer(computer: ServerComputer, level: ServerLevel, ship: ServerShip?) {
         if (ship == null)
             return
 
@@ -42,7 +42,7 @@ object CCVSUtils {
             addApiMethod.invoke(trueComputer, ExtendedShipAPI(apiEnvironment, ship, level))
         else
             addApiMethod.invoke(trueComputer, ShipAPI(ship, level))
-    }
+    }*/
 
     fun Vector3dc.toLua() = mapOf(
         Pair("x", this.x()),
@@ -68,9 +68,7 @@ object CCVSUtils {
         return tensor
     }
 
-    fun getShip(level: ServerLevel, pos: BlockPos) = level.getShipManagingPos(pos)
-
-    fun getComputerByID(id: Int) = CCVSMod.context.registry()[id]
+    fun getComputerByID(id: Int) = CCVSMod.context.registry().computers.find { computer -> computer.id == id }
 
     fun VSConstraintAndId.toLua() = mapOf(Pair("id", this.constraintId), Pair("constraint", this.vsConstraint.toLua()))
 
