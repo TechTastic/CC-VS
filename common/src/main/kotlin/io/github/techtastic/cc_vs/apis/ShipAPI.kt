@@ -61,6 +61,34 @@ open class ShipAPI(val ship: ServerShip, val level: ServerLevel) : ILuaAPI {
         this.ship.transform.shipToWorldRotation.toLua()
 
     @LuaFunction
+    fun getEulerAnglesXYZ() =
+        this.ship.transform.shipToWorldRotation.getEulerAnglesXYZ(Vector3d()).toLua()
+
+    @LuaFunction
+    fun getEulerAnglesYXZ() =
+        this.ship.transform.shipToWorldRotation.getEulerAnglesYXZ(Vector3d()).toLua()
+
+    @LuaFunction
+    fun getEulerAnglesZXY() =
+        this.ship.transform.shipToWorldRotation.getEulerAnglesZXY(Vector3d()).toLua()
+
+    @LuaFunction
+    fun getEulerAnglesZYX() =
+        this.ship.transform.shipToWorldRotation.getEulerAnglesZYX(Vector3d()).toLua()
+
+    @LuaFunction
+    fun getRoll(): Double =
+        this.ship.transform.shipToWorldRotation.getEulerAnglesZYX(Vector3d()).x
+
+    @LuaFunction
+    fun getYaw(): Double =
+        this.ship.transform.shipToWorldRotation.getEulerAnglesZXY(Vector3d()).y
+
+    @LuaFunction
+    fun getPitch(): Double =
+        this.ship.transform.shipToWorldRotation.getEulerAnglesYXZ(Vector3d()).z
+
+    @LuaFunction
     fun getScale(): Map<String, Double> =
         this.ship.transform.shipToWorldScaling.toLua()
 
@@ -102,6 +130,19 @@ open class ShipAPI(val ship: ServerShip, val level: ServerLevel) : ILuaAPI {
     @LuaFunction
     fun setSlug(name: String) {
         this.ship.slug = name
+    }
+
+    @LuaFunction
+    fun getRotationMatrix(): List<List<Double>> {
+        val transform = this.ship.transform.shipToWorld
+        val matrix: MutableList<List<Double>> = mutableListOf()
+
+        for (i in 0..3) {
+            val row = transform.getRow(i, Vector4d())
+            matrix.add(i, listOf(row.x, row.y, row.z, row.w))
+        }
+
+        return matrix.toList()
     }
 
     @LuaFunction
