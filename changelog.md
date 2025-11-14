@@ -1,8 +1,9 @@
 # Changes
-- Removed the `getEulerAngles***` methods in favor of a `quaternion` Lua library in-game
-- Added `quaternion` Lua library as an in-game API
-- Changed the `physics_tick` event to `physics_ticks` and updated how it works
-  - `physics_ticks` now saves up previous ticks of data THEN, on game tick, send out the event with the queued physics data
-- Updated config documentation
-- Added `ship` help page in-game
-- Added new methods to both Ship and Extended Ship API that take vectors
+### Ship API
+- Made the Ship API available on every computer but all methods error if not on a Ship
+- Made `getOmega`, `getScale`, `getShipyardPosition`, `getVelocity`, `getWorldspacePosition`, and `transformPositionToWorld` output proper `vector`s with correct metatable
+- Made `getQuaternion` output a proper `quaternion` with correct metatable
+- Re-added `getEulerAnglesZYX"`, `getEulerAnglesZXY`, `getEulerAnglesYXZ`, `getEulerAnglesXYZ`, `getRoll`, `getYaw`, `getPitch`, and `getRotationMatrix` ***only*** so they throw a more useful error redirecting to the new methods.
+- Updated help page
+### Quaternion API
+- Fixed mistake in `tostring` to account for negative values
