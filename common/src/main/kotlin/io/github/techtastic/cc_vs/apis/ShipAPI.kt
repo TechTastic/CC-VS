@@ -6,6 +6,7 @@ import dan200.computercraft.api.lua.ILuaAPI
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import io.github.techtastic.cc_vs.mixin.ShipObjectWorldAccessor
+import io.github.techtastic.cc_vs.ship.PhysTickEventHandler
 import io.github.techtastic.cc_vs.util.CCVSUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils.toLua
 import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
@@ -78,6 +79,14 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
             Pair("z", aabb.maxZ() - aabb.minZ())
         )
     }
+
+    @LuaFunction
+    fun getAcceleration(): Map<String, Double> =
+        PhysTickEventHandler.getOrCreateControl(getShip()).getAcceleration()
+
+    @LuaFunction
+    fun getRotationalAcceleration(): Map<String, Double> =
+        PhysTickEventHandler.getOrCreateControl(getShip()).getRotationalAcceleration()
 
     @LuaFunction
     fun getVelocity(): Map<String, Double> =
