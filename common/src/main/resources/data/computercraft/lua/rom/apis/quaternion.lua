@@ -403,10 +403,9 @@ end
 -- @usage q = quaternion.fromShip()
 function fromShip()
     if not ship then
-        error("This method requires the ship API added by CC: VS when a computer is on a Ship!")
+        error("This method requires the ship API added by CC: VS!")
     end
-    local q = ship.getQuaternion()
-    return fromComponents(q.x, q.y, q.z, q.w)
+    return ship.getQuaternion()\
 end
 
 --- Constructs a new identity quaternion, representing an empty rotation.

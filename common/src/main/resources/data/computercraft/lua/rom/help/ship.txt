@@ -1,6 +1,3 @@
-Ship API only exists when a computer is on a Valkyrien Skies 2 Ship!
-Extended Ship API only exists on Command Computers by default!
-
 Functions in the Ship API:
 ship.getId()
 ship.getMass()
@@ -37,3 +34,5 @@ ship.applyRotDependentForceToPos( vector, vector )
 ship.setStatic( boolean )
 ship.setScale( number )
 ship.teleport( table )
+
+Note: Extended Ship API only exists on Command Computers by default!
