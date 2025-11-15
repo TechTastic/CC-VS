@@ -23,7 +23,9 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"
     api "org.jetbrains.kotlin:kotlin-reflect:1.9.10"
 
-    modCompileOnly("curse.maven:cc-tweaked-282001:5714509")
+    //modCompileOnly("curse.maven:cc-tweaked-282001:5714509")
+    compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-common-api:$cct_version")
+    modCompileOnly("cc.tweaked:cc-tweaked-$minecraft_version-common:$cct_version")
 }
 
 publishing {

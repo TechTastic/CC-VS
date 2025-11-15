@@ -128,7 +128,24 @@ local quaternion = {
     -- @usage q:tostring()
     -- @usage q .. ""
     tostring = function(self)
-        return self.a.." + "..self.v.x.."i + "..self.v.y.."j + "..self.v.z.."k"
+        local str = self.a .. ""
+        if (self.v.x >= 0) then
+            str = str .. " + "
+        else
+            str = str .. " - "
+        str = str .. math.abs(self.v.x) .. "i"
+        if (self.v.y >= 0) then
+            str = str .. " + "
+        else
+            str = str .. " - "
+        str = str .. math.abs(self.v.y) .. "j"
+        if (self.v.z >= 0) then
+            str = str .. " + "
+        else
+            str = str .. " - "
+        str = str .. math.abs(self.v.y) .. "k"
+
+        return str
     end,
 
     --- Determines if the given quaternions are equal.
@@ -386,10 +403,9 @@ end
 -- @usage q = quaternion.fromShip()
 function fromShip()
     if not ship then
-        error("This method requires the ship API added by CC: VS when a computer is on a Ship!")
+        error("This method requires the ship API added by CC: VS!")
     end
-    local q = ship.getQuaternion()
-    return fromComponents(q.x, q.y, q.z, q.w)
+    return ship.getQuaternion()\
 end
 
 --- Constructs a new identity quaternion, representing an empty rotation.
