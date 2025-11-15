@@ -63,6 +63,13 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     }
 
     @LuaFunction
+    fun pullPhysicsTicks(): Array<Any>? {
+        if (!PlatformUtils.exposePhysTick())
+            throw LuaException("Physics Tick is not exposed! This is a configuration option!")
+        return null
+    }
+
+    @LuaFunction
     fun getId(): Long =
         getShip().id
 

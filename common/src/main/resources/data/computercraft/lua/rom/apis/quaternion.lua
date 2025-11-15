@@ -406,7 +406,7 @@ function fromShip()
     if not ship then
         error("This method requires the ship API added by CC: VS!")
     end
-    return ship.getQuaternion()\
+    return ship.getQuaternion()
 end
 
 --- Constructs a new identity quaternion, representing an empty rotation.
