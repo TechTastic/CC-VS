@@ -4,20 +4,16 @@ import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.IComputerSystem
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
-import dan200.computercraft.core.apis.IAPIEnvironment
 import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.ship.PhysTickEventHandler
+import io.github.techtastic.cc_vs.ship.PhysicsTicksEventHandler
 import io.github.techtastic.cc_vs.ship.QueuedForcesApplier
 import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
-import net.minecraft.server.level.ServerLevel
-import org.checkerframework.common.reflection.qual.NewInstance
 import org.joml.Quaterniond
 import org.joml.Quaterniondc
 import org.joml.Vector3d
 import org.joml.Vector3dc
-import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl
-import org.valkyrienskies.mod.common.getShipObjectManagingPos
 import org.valkyrienskies.mod.common.shipObjectWorld
 import org.valkyrienskies.mod.common.vsCore
 
@@ -25,7 +21,7 @@ class ExtendedShipAPI(system: IComputerSystem) : ShipAPI(system) {
     override fun startup() {
         try {
             if (PlatformUtils.exposePhysTick())
-                PhysTickEventHandler.getOrCreateControl(getShip())
+                PhysicsTicksEventHandler.getOrCreateControl(getShip())
         } catch (_: LuaException) {}
         super.startup()
     }
@@ -33,7 +29,7 @@ class ExtendedShipAPI(system: IComputerSystem) : ShipAPI(system) {
     override fun update() {
         try {
             if (PlatformUtils.exposePhysTick()) {
-                val data = PhysTickEventHandler.getOrCreateControl(getShip()).getData()
+                val data = PhysicsTicksEventHandler.getOrCreateControl(getShip()).getData()
                 system.queueEvent("physics_ticks", *data)
             }
         } catch (_: LuaException) {}
@@ -43,7 +39,7 @@ class ExtendedShipAPI(system: IComputerSystem) : ShipAPI(system) {
     override fun shutdown() {
         try {
             if (PlatformUtils.exposePhysTick())
-                PhysTickEventHandler.getOrCreateControl(getShip())
+                PhysicsTicksEventHandler.getOrCreateControl(getShip())
         } catch (_: LuaException) {}
         super.shutdown()
     }

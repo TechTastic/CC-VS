@@ -6,6 +6,8 @@ import dan200.computercraft.shared.computer.core.ServerContext
 import dev.architectury.event.events.common.LifecycleEvent
 import io.github.techtastic.cc_vs.apis.ExtendedShipAPI
 import io.github.techtastic.cc_vs.apis.ShipAPI
+import io.github.techtastic.cc_vs.ship.PhysTickEventHandler
+import org.valkyrienskies.core.impl.hooks.VSEvents
 
 
 object CCVSMod {
@@ -23,6 +25,8 @@ object CCVSMod {
             else
                 return@registerAPIFactory ShipAPI(system)
         }
+
+        VSEvents.shipLoadEvent.on { huh -> huh.ship.setAttachment(PhysTickEventHandler::class.java, null) }
     }
 
     @JvmStatic
