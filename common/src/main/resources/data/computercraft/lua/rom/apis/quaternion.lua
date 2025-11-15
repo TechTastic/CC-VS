@@ -128,24 +128,25 @@ local quaternion = {
     -- @usage q:tostring()
     -- @usage q .. ""
     tostring = function(self)
-        local str = self.a .. ""
+        local str = tostring(self.a)
         if (self.v.x >= 0) then
             str = str .. " + "
         else
             str = str .. " - "
-        str = str .. math.abs(self.v.x) .. "i"
+        end
+        str = str .. tostring(math.abs(self.v.x)) .. "i"
         if (self.v.y >= 0) then
             str = str .. " + "
         else
             str = str .. " - "
-        str = str .. math.abs(self.v.y) .. "j"
+        end
+        str = str .. tostring(math.abs(self.v.y)) .. "j"
         if (self.v.z >= 0) then
             str = str .. " + "
         else
             str = str .. " - "
-        str = str .. math.abs(self.v.y) .. "k"
-
-        return str
+        end
+        return str .. tostring(math.abs(self.v.y)) .. "k"
     end,
 
     --- Determines if the given quaternions are equal.

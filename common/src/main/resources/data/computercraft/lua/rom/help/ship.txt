@@ -17,6 +17,7 @@ ship.isStatic()
 ship.setSlug( string )
 ship.getTransformationMatrix()
 ship.getConstraints()
+ship.pullPhysicsTicks()
 
 Functions in the Extended Ship API:
 fun applyInvariantForce( number, number, number )
