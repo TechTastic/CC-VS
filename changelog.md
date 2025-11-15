@@ -7,3 +7,5 @@
 - Updated help page
 ### Quaternion API
 - Fixed mistake in `tostring` to account for negative values
+### Extended Ship API
+- Improvement to the `physics_ticks` event (i messed up and its now giving appropriate values)
