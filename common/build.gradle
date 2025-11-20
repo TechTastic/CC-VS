@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 architectury {
     common(rootProject.enabled_platforms.split(","))
 }
@@ -40,6 +42,10 @@ tasks.register('copyMathLibrary', Copy) {
     include '*/*.txt'
 }
 processResources.dependsOn('copyMathLibrary')
+
+tasks.named("sourcesJar") {
+    dependsOn("copyMathLibrary")
+}
 
 publishing {
     publications {
