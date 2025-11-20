@@ -1,27 +1,25 @@
 // Publish to CurseForge
 curseforge {
-    if (project.curse_api_key) {
-        apiKey = project.curse_api_key
-        project {
-            id = project.curse_project_id
-            releaseType = 'release'
-            changelogType = 'markdown'
-            changelog = rootProject.file("changelog.md").text
-            addGameVersion project.minecraft_version
-            addGameVersion project.loader_platform
+    apiKey = System.getenv("CURSEFORGE_TOKEN")
+    project {
+        id = project.curse_project_id
+        releaseType = 'release'
+        changelogType = 'markdown'
+        changelog = rootProject.file("changelog.md").text
+        addGameVersion project.minecraft_version
+        addGameVersion project.loader_platform
 
-            mainArtifact(remapJar.archiveFile.get().asFile) {
-                relations {
-                    requiredDependency 'valkyrien-skies'
-                    if (project.loader_platform == "Forge") {
-                        requiredDependency 'cc-tweaked'
-                        requiredDependency 'kotlin-for-forge'
-                    }
-                    if (project.loader_platform == "Fabric")
-                        requiredDependency 'cc-restitched'
+        mainArtifact(remapJar.archiveFile.get().asFile) {
+            relations {
+                requiredDependency 'valkyrien-skies'
+                if (project.loader_platform == "Forge") {
+                    requiredDependency 'kotlin-for-forge'
+                    requiredDependency 'cc-tweaked'
                 }
-                displayName = 'CC: VS ' + project.minecraft_version + ' ' + project.loader_platform + ' ' + project.mod_version
+                if (project.loader_platform == "Fabric")
+                    requiredDependency 'cc-restitched'
             }
+            displayName = 'CC: VS ' + project.minecraft_version + ' ' + project.loader_platform + ' ' + project.mod_version
         }
     }
     options {
@@ -32,7 +30,7 @@ curseforge {
 
 // Publish to Modrinth
 modrinth {
-    token = project.modrinth_api_key
+    token = System.getenv("MODRINTH_TOKEN")
     projectId = project.modrinth_project_id
     versionType = "release"
     versionName = 'CC: VS ' + project.minecraft_version + '-' + project.loader_platform.toLowerCase() + '-' + project.mod_version
@@ -50,6 +48,5 @@ modrinth {
         }
         if (project.loader_platform == "Fabric")
             required.project "cc-restitched"
-
     }
 }
