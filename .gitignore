@@ -17,8 +17,8 @@ classes/
 .settings
 *.launch
 
-/apis/matrix.lua
-/apis/quaternion.lua
-/help/matrix.txt
-/help/quaternion.txt
-/modules/main/pid.lua
+matrix.lua
+quaternion.lua
+matrix.txt
+quaternion.txt
+pid.lua
