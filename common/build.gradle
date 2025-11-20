@@ -26,6 +26,23 @@ dependencies {
     modCompileOnly("curse.maven:cc-restitched-462672:3838648")
 }
 
+tasks.register('updateSubmodules', Exec) {
+    commandLine 'git', 'submodule', 'update', '--recursive', '--remote'
+}
+
+tasks.register('copyMathLibrary', Copy) {
+    dependsOn('updateSubmodules')
+    from '../libs/advanced_math/datapack/data/computercraft/lua/rom/'
+    into 'src/main/resources/data/computercraft/lua/rom/'
+    include '**/*.lua'
+    include '*/*.txt'
+}
+processResources.dependsOn('copyMathLibrary')
+
+tasks.named("sourcesJar") {
+    dependsOn("copyMathLibrary")
+}
+
 publishing {
     publications {
         mavenCommon(MavenPublication) {
