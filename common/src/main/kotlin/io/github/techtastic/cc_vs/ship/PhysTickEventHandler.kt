@@ -13,22 +13,12 @@ class PhysTickEventHandler: ShipForcesInducer, ServerTickListener {
     private val queuedData = ConcurrentLinkedQueue<LuaPhysShip>()
 
     override fun applyForces(physShip: PhysShip) {
-        if (!PlatformUtils.exposePhysTick())
-            return
-
-        this.queuedData.add(LuaPhysShip(physShip as PhysShipImpl))
     }
 
     fun addComputer(id: Int) {
-        this.computers.add(id)
     }
 
     override fun onServerTick() {
-        this.computers.removeIf { PlatformUtils.getComputerByID(it) == null }
-        this.computers.forEach {
-            PlatformUtils.getComputerByID(it)?.queueEvent("physics_ticks", this.queuedData.toTypedArray())
-        }
-        this.queuedData.clear()
     }
 
     companion object {

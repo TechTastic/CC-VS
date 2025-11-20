@@ -6,16 +6,13 @@ import dan200.computercraft.shared.computer.core.ServerComputer
 import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.apis.ExtendedShipAPI
 import io.github.techtastic.cc_vs.apis.ShipAPI
-import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import org.joml.Matrix3dc
-import org.joml.Quaterniond
 import org.joml.Quaterniondc
 import org.joml.Vector3d
 import org.joml.Vector3dc
 import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.apigame.constraints.*
-import org.valkyrienskies.mod.common.getShipManagingPos
 
 object CCVSUtils {
     fun applyShipAPIsToComputer(computer: ServerComputer, level: ServerLevel, ship: ServerShip?) {
@@ -23,9 +20,9 @@ object CCVSUtils {
             return
 
         if (!PlatformUtils.isCommandOnly() || computer.family == ComputerFamily.COMMAND)
-            computer.addAPI(ExtendedShipAPI(computer.apiEnvironment, ship, level))
+            computer.addAPI(ExtendedShipAPI(level, computer.position))
         else
-            computer.addAPI(ShipAPI(ship, level))
+            computer.addAPI(ShipAPI(level, computer.position))
     }
 
     fun Vector3dc.toLua() = mapOf(
@@ -51,8 +48,6 @@ object CCVSUtils {
 
         return tensor
     }
-
-    fun getShip(level: ServerLevel, pos: BlockPos) = level.getShipManagingPos(pos)
 
     fun VSConstraintAndId.toLua() = mapOf(Pair("id", this.constraintId), Pair("constraint", this.vsConstraint.toLua()))
 
@@ -105,7 +100,7 @@ object CCVSUtils {
             }
 
             is VSSlideConstraint -> {
-                constraint["localSlideAxis0"] = this.localSlideAxis0
+                constraint["localSlideAxis0"] = this.localSlideAxis0.toLua()
                 constraint["maxDistBetweenPoints"] = this.maxDistBetweenPoints
             }
 
