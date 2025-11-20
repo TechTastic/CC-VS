@@ -7,7 +7,6 @@ out/
 .gradle/
 output/
 bin/
-libs/
 
 .classpath
 .project
@@ -17,3 +16,9 @@ classes/
 .vscode
 .settings
 *.launch
+
+/apis/matrix.lua
+/apis/quaternion.lua
+/help/matrix.txt
+/help/quaternion.txt
+/modules/main/pid.lua
