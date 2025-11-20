@@ -18,32 +18,6 @@ import org.valkyrienskies.mod.common.shipObjectWorld
 import org.valkyrienskies.mod.common.vsCore
 
 class ExtendedShipAPI(system: IComputerSystem) : ShipAPI(system) {
-    override fun startup() {
-        try {
-            if (PlatformUtils.exposePhysTick())
-                PhysicsTicksEventHandler.getOrCreateControl(getShip())
-        } catch (_: LuaException) {}
-        super.startup()
-    }
-
-    override fun update() {
-        try {
-            if (PlatformUtils.exposePhysTick()) {
-                val data = PhysicsTicksEventHandler.getOrCreateControl(getShip()).getData()
-                system.queueEvent("physics_ticks", *data)
-            }
-        } catch (_: LuaException) {}
-        super.update()
-    }
-
-    override fun shutdown() {
-        try {
-            if (PlatformUtils.exposePhysTick())
-                PhysicsTicksEventHandler.getOrCreateControl(getShip())
-        } catch (_: LuaException) {}
-        super.shutdown()
-    }
-
     @LuaFunction
     fun applyInvariantForce(args: IArguments) {
         val newForce =

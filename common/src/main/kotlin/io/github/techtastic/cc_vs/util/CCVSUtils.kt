@@ -121,7 +121,7 @@ object CCVSUtils {
             }
 
             is VSSlideConstraint -> {
-                constraint["localSlideAxis0"] = this.localSlideAxis0
+                constraint["localSlideAxis0"] = this.localSlideAxis0.toLua()
                 constraint["maxDistBetweenPoints"] = this.maxDistBetweenPoints
             }
 

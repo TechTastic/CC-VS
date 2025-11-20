@@ -28,7 +28,7 @@ object CCVSConfig {
                 .translation("config.cc_vs.command_only")
                 .define("command_only", true)
         EXPOSE_PHYS_TICK = BUILDER
-                .comment("Expose PhysShipImpl from the physics tick?")
+                .comment("Expose PhysShipImpl data from the previous physics ticks on game tick via CC: Tweaked's events?")
                 .worldRestart()
                 .translation("config.cc_vs.expose_phys_tick")
                 .define("expose_phys_tick", false)

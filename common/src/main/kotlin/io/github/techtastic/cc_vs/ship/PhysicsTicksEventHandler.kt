@@ -1,5 +1,6 @@
 package io.github.techtastic.cc_vs.ship
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.apis.LuaPhysShip
 import org.valkyrienskies.core.api.ships.*
@@ -7,6 +8,7 @@ import org.valkyrienskies.core.impl.game.ships.PhysShipImpl
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class PhysicsTicksEventHandler: ShipForcesInducer {
+    @JsonIgnore
     private val queuedData = ConcurrentLinkedQueue<LuaPhysShip>()
 
     override fun applyForces(physShip: PhysShip) {
@@ -16,6 +18,7 @@ class PhysicsTicksEventHandler: ShipForcesInducer {
         this.queuedData.add(LuaPhysShip(physShip as PhysShipImpl))
     }
 
+    @JsonIgnore
     fun getData(): Array<LuaPhysShip> {
         val data = this.queuedData.toTypedArray()
         this.queuedData.clear()

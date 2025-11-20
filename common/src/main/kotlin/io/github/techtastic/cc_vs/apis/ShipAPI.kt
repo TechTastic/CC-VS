@@ -5,7 +5,9 @@ import dan200.computercraft.api.lua.IComputerSystem
 import dan200.computercraft.api.lua.ILuaAPI
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
+import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.mixin.ShipObjectWorldAccessor
+import io.github.techtastic.cc_vs.ship.PhysicsTicksEventHandler
 import io.github.techtastic.cc_vs.util.CCVSUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils.toLua
 import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
@@ -27,11 +29,44 @@ import kotlin.math.asin
 import kotlin.math.atan2
 
 open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
+    override fun startup() {
+        try {
+            if (PlatformUtils.exposePhysTick())
+                PhysicsTicksEventHandler.getOrCreateControl(getShip())
+        } catch (_: LuaException) {}
+        super.startup()
+    }
+
+    override fun update() {
+        try {
+            if (PlatformUtils.exposePhysTick()) {
+                val data = PhysicsTicksEventHandler.getOrCreateControl(getShip()).getData()
+                system.queueEvent("physics_ticks", *data)
+            }
+        } catch (_: LuaException) {}
+        super.update()
+    }
+
+    override fun shutdown() {
+        try {
+            if (PlatformUtils.exposePhysTick())
+                PhysicsTicksEventHandler.getOrCreateControl(getShip())
+        } catch (_: LuaException) {}
+        super.shutdown()
+    }
+
     override fun getNames(): Array<out String>? = arrayOf("ship")
 
     protected fun getShip(): LoadedServerShip {
         return system.level.getShipObjectManagingPos(system.position)
             ?: throw LuaException("This computer is not on a Ship!")
+    }
+
+    @LuaFunction
+    fun pullPhysicsTicks(): Array<Any>? {
+        if (!PlatformUtils.exposePhysTick())
+            throw LuaException("Physics Tick is not exposed! This is a configuration option!")
+        return null
     }
 
     @LuaFunction
