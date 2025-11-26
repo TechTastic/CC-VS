@@ -19,11 +19,9 @@ class PhysicsTicksEventHandler: ShipForcesInducer {
     }
 
     @JsonIgnore
-    fun getData(): Array<LuaPhysShip> {
-        val data = this.queuedData.toTypedArray()
-        this.queuedData.clear()
-        return data
-    }
+    fun getData() = this.queuedData.toTypedArray()
+
+    fun resetData() = this.queuedData.clear()
 
     companion object {
         fun getOrCreateControl(ship: ServerShip): PhysicsTicksEventHandler {
