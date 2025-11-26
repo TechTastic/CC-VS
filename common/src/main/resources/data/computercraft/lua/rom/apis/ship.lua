@@ -8,13 +8,13 @@
 
 --- Gets the Ship's unique Slug
 -- @function getSlug
--- @tparam string The Ship's Slug
+-- @treturn string The Ship's Slug
 -- @see setSlug
 -- @raise This method errors if there is no Ship associated with the computer
 
 --- Sets the Ship's unique Slug
 -- @function setSlug
--- @treturn string name The Ship's new Slug
+-- @tparam string name The Ship's new Slug
 -- @see getSlug
 -- @raise This method errors if there is no Ship associated with the computer
 
@@ -102,8 +102,10 @@
 -- @treturn ... Physics ticks information
 -- @raise This method errors if there is no Ship associated with the computer
 
---- @section physitcs_ticks_event_data Physics Ticks Event Data
+--- Physics Ticks Event Data
+--
 -- This section describes the data returned by the physics ticks event.
+-- @section physics_ticks_event_data
 
 --- Gets the Ship's buoyancy factor during the physics tick
 -- @function getBuoyancyFactor
