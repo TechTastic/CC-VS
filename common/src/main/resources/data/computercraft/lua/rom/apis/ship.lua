@@ -1,11 +1,6 @@
---- The Ship API provided by CC: VS
--- This module adds new functions to gather internal information from Valkyrien Skies' Ships!
---
--- @module ship
-
 --- Ship API
 --
--- @section ship_api
+-- @module ship_api
 
 --- Gets the Ship's ID
 -- @function getId
