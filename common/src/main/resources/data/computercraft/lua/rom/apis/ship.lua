@@ -100,7 +100,7 @@
 -- @function pullPhysicsTicks
 -- @treturn string The event name
 -- @treturn ... Physics ticks information
--- @see physics_ticks_event_data
+-- @see Physics Ticks Event Data
 -- @raise This method errors if there is no Ship associated with the computer
 
 --- Extended Ship API
@@ -234,31 +234,37 @@
 
 --- Physics Ticks Event Data
 --
--- @type physics_ticks_event_data
+-- @type Physics Ticks Event Data
 
 --- Gets the Ship's buoyancy factor during the physics tick
 -- @function getBuoyancyFactor
 -- @treturn number The Ship's buoyancy factor
+-- @export
 
 --- Whether the Ship is static during the physics tick
 -- @function isStatic
 -- @treturn boolean Whether the Ship is static
+-- @export
 
 --- Whether the Ship is affected by fluid drag during the physics tick
 -- @function doFluidDrag
 -- @treturn boolean Whether the Ship has fluid drag
+-- @export
 
 --- Gets the Ship's Inertia Data during the physics tick
 -- @function getInertiaData
 -- @treturn table The Ship's Inertia Data comprised of mass and moment of inertia tensor
+-- @export
 
 --- Gets the Ship's Pose and Velocity during the physics tick
 -- @function getPoseVel
 -- @treturn table The Ship's Pose and Velocity data including position, rotation, linear velocity, and angular velocity
+-- @export
 
 --- Gets the Force Inducers on the Ship during the physics tick
 -- @function getForceInducers
 -- @treturn table A table of Force Inducers on the Ship
+-- @export
 
 if not ship then
     error("Cannot load Ship API on computer")
