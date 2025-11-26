@@ -15,7 +15,7 @@
 
 --- Sets the Ship's unique Slug
 -- @function setSlug
--- @treturn string The Ship's new Slug
+-- @treturn string name The Ship's new Slug
 -- @see getSlug
 -- @raise This method errors if there is no Ship associated with the computer
 
@@ -104,8 +104,9 @@
 -- @raise This method errors if there is no Ship associated with the computer
 
 --- Physics Ticks Event Data
--- This section describes the data returned by the physics ticks event.
+--
 -- @section physitcs_ticks_event_data
+-- This section describes the data returned by the physics ticks event.
 
 --- Gets the Ship's buoyancy factor during the physics tick
 -- @function getBuoyancyFactor
@@ -133,12 +134,12 @@
 
 --- Extended Ship API
 --
+-- @section extended_ship_api
+--
 -- This section contains extended functions for the Ship API that provide additional functionality
 -- beyond the basic Ship operations.
 --
 -- As of CC: VS 0.5.0, these functions have been rolled into the main Ship API for better usability.
---
--- @section extended_ship_api
 
 --- Sets the Ship to be static or dynamic
 -- @function setStatic
@@ -231,10 +232,10 @@
 
 --- Deprecated Methods
 --
+-- @section deprecated
+--
 -- The following methods have been deprecated and are no longer available.
 -- Please refer to the updated Ship API documentation for alternative methods.
---
--- @section deprecated
 
 --- Gets the Ship's Euler Angles in ZYX order
 -- @function getEulerAnglesZYX
