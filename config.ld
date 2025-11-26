@@ -6,5 +6,4 @@ file = {
 }
 format = 'markdown'
 dir = 'docs'
-no_return_or_parms = true
 one = true
