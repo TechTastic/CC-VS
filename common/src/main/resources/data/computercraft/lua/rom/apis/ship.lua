@@ -1,7 +1,5 @@
---- Ship API
---
--- This API is added by CC: VS and allows CC: Tweaked computers to access information from Valkyrien Skies Ships.
--- @module ship_api
+--- This API is added by CC: VS and allows CC: Tweaked computers to access information from Valkyrien Skies Ships.
+-- @module ship
 
 --- Gets the Ship's ID
 -- @function getId
@@ -102,13 +100,12 @@
 -- @function pullPhysicsTicks
 -- @treturn string The event name
 -- @treturn ... Physics ticks information
+-- @see physics_ticks_event_data
 -- @raise This method errors if there is no Ship associated with the computer
 
 --- Physics Ticks Event Data
 --
 -- @section physics_ticks_event_data
-
---- This section describes the data returned by the physics ticks event.
 
 --- Gets the Ship's buoyancy factor during the physics tick
 -- @function getBuoyancyFactor
@@ -137,10 +134,6 @@
 --- Extended Ship API
 --
 -- @section extended_ship_api
-
---- This section describes additional methods available in the Ship API for advanced manipulation of the Ship.
--- These methods may require special permissions or configurations to use.
--- As of CC: VS 0.5.0, these methods are merged into the main Ship API and are available on all computers with Ship access.
 
 --- Sets the Ship to be static or dynamic
 -- @function setStatic
@@ -234,9 +227,6 @@
 --- Deprecated Methods
 --
 -- @section deprecated
-
---- The following methods have been deprecated and are no longer available.
--- Please refer to the updated Ship API documentation for alternative methods.
 
 --- Gets the Ship's Euler Angles in ZYX order
 -- @function getEulerAnglesZYX
