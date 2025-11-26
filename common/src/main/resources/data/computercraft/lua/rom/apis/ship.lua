@@ -1,5 +1,4 @@
 --- Ship API
---
 -- @module ship_api
 
 --- Gets the Ship's ID
@@ -9,7 +8,7 @@
 
 --- Gets the Ship's unique Slug
 -- @function getSlug
--- @treturn string The Ship's Slug
+-- @tparam string The Ship's Slug
 -- @see setSlug
 -- @raise This method errors if there is no Ship associated with the computer
 
@@ -103,9 +102,7 @@
 -- @treturn ... Physics ticks information
 -- @raise This method errors if there is no Ship associated with the computer
 
---- Physics Ticks Event Data
---
--- @section physitcs_ticks_event_data
+--- @section physitcs_ticks_event_data Physics Ticks Event Data
 -- This section describes the data returned by the physics ticks event.
 
 --- Gets the Ship's buoyancy factor during the physics tick
