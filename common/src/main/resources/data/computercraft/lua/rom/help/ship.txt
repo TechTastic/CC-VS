@@ -19,7 +19,8 @@ ship.getTransformationMatrix()
 ship.getConstraints()
 ship.pullPhysicsTicks()
 
-Functions in the Extended Ship API:
+Note: Methods past this point require a Command Computer by default!
+
 fun applyInvariantForce( number, number, number )
 fun applyInvariantForce( vector )
 fun applyInvariantTorque( number, number, number )
@@ -35,5 +36,3 @@ ship.applyRotDependentForceToPos( vector, vector )
 ship.setStatic( boolean )
 ship.setScale( number )
 ship.teleport( table )
-
-Note: Extended Ship API only exists on Command Computers by default!

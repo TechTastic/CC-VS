@@ -1,49 +1,11 @@
 package io.github.techtastic.cc_vs.util
 
-import dan200.computercraft.api.lua.ILuaAPI
 import dan200.computercraft.api.lua.LuaException
-import dan200.computercraft.api.lua.LuaFunction
-import dan200.computercraft.core.apis.IAPIEnvironment
-import dan200.computercraft.shared.computer.core.ComputerFamily
-import dan200.computercraft.shared.computer.core.ServerComputer
 import io.github.techtastic.cc_vs.CCVSMod
-import io.github.techtastic.cc_vs.PlatformUtils
-import io.github.techtastic.cc_vs.apis.ExtendedShipAPI
-import io.github.techtastic.cc_vs.apis.ShipAPI
-import net.minecraft.core.BlockPos
-import net.minecraft.server.level.ServerLevel
 import org.joml.*
-import org.valkyrienskies.core.api.ships.ServerShip
 import org.valkyrienskies.core.apigame.constraints.*
-import org.valkyrienskies.mod.common.getShipManagingPos
 
 object CCVSUtils {
-    /*fun applyShipAPIsToComputer(computer: ServerComputer, level: ServerLevel, ship: ServerShip?) {
-        if (ship == null)
-            return
-
-        // Get the 'Computer' instance from 'computer' (which is an instance of ServerComputer)
-        val trueComputer = computer::class.java
-            .getDeclaredField("computer")
-            .apply { isAccessible = true }
-            .get(computer)
-
-        val computerClass = trueComputer::class.java
-        val apiEnvironment = computerClass
-            .getDeclaredMethod("getAPIEnvironment")
-            .apply { isAccessible = true }
-            .invoke(trueComputer) as IAPIEnvironment
-
-        val addApiMethod = computerClass
-            .getDeclaredMethod("addApi", ILuaAPI::class.java)
-            .apply { isAccessible = true }
-
-        if (!PlatformUtils.isCommandOnly() || computer.family == ComputerFamily.COMMAND)
-            addApiMethod.invoke(trueComputer, ExtendedShipAPI(apiEnvironment, ship, level))
-        else
-            addApiMethod.invoke(trueComputer, ShipAPI(ship, level))
-    }*/
-
     fun Vector3dc.toLua() = mapOf(
         Pair("x", this.x()),
         Pair("y", this.y()),
