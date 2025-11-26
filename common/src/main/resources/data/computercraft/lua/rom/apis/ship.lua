@@ -100,7 +100,6 @@
 -- @function pullPhysicsTicks
 -- @treturn string The event name
 -- @treturn ... Physics ticks information
--- @see PhysicsTicksEventData
 -- @raise This method errors if there is no Ship associated with the computer
 
 --- Extended Ship API
@@ -234,7 +233,7 @@
 
 --- Physics Ticks Event Data
 --
--- @type PhysicsTicksEventData
+-- @section PhysicsTicksEventData
 
 --- Gets the Ship's buoyancy factor during the physics tick
 -- @function getBuoyancyFactor
