@@ -106,8 +106,9 @@
 
 --- Physics Ticks Event Data
 --
--- This section describes the data returned by the physics ticks event.
 -- @section physics_ticks_event_data
+
+--- This section describes the data returned by the physics ticks event.
 
 --- Gets the Ship's buoyancy factor during the physics tick
 -- @function getBuoyancyFactor
@@ -135,10 +136,11 @@
 
 --- Extended Ship API
 --
--- This section describes additional methods available in the Ship API for advanced manipulation of the Ship.
+-- @section extended_ship_api
+
+--- This section describes additional methods available in the Ship API for advanced manipulation of the Ship.
 -- These methods may require special permissions or configurations to use.
 -- As of CC: VS 0.5.0, these methods are merged into the main Ship API and are available on all computers with Ship access.
--- @section extended_ship_api
 
 --- Sets the Ship to be static or dynamic
 -- @function setStatic
@@ -231,9 +233,10 @@
 
 --- Deprecated Methods
 --
--- The following methods have been deprecated and are no longer available. 
--- Please refer to the updated Ship API documentation for alternative methods.
 -- @section deprecated
+
+--- The following methods have been deprecated and are no longer available.
+-- Please refer to the updated Ship API documentation for alternative methods.
 
 --- Gets the Ship's Euler Angles in ZYX order
 -- @function getEulerAnglesZYX
