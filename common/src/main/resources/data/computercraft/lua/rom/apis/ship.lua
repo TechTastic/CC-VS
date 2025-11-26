@@ -103,34 +103,6 @@
 -- @see physics_ticks_event_data
 -- @raise This method errors if there is no Ship associated with the computer
 
---- Physics Ticks Event Data
---
--- @section physics_ticks_event_data
-
---- Gets the Ship's buoyancy factor during the physics tick
--- @function getBuoyancyFactor
--- @treturn number The Ship's buoyancy factor
-
---- Whether the Ship is static during the physics tick
--- @function isStatic
--- @treturn boolean Whether the Ship is static
-
---- Whether the Ship is affected by fluid drag during the physics tick
--- @function doFluidDrag
--- @treturn boolean Whether the Ship has fluid drag
-
---- Gets the Ship's Inertia Data during the physics tick
--- @function getInertiaData
--- @treturn table The Ship's Inertia Data comprised of mass and moment of inertia tensor
-
---- Gets the Ship's Pose and Velocity during the physics tick
--- @function getPoseVel
--- @treturn table The Ship's Pose and Velocity data including position, rotation, linear velocity, and angular velocity
-
---- Gets the Force Inducers on the Ship during the physics tick
--- @function getForceInducers
--- @treturn table A table of Force Inducers on the Ship
-
 --- Extended Ship API
 --
 -- @section extended_ship_api
@@ -155,7 +127,7 @@
 -- Use with caution.
 --
 -- @function teleport
--- @tparam table The new position and orientation for the Ship
+-- @tparam table data The new position and orientation for the Ship
 -- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it OR if this method is disabled in the configuration.
 
 --- Applies an invariant force to the Ship
@@ -259,6 +231,34 @@
 --- Gets the Ship's Rotation Matrix
 -- @function getRotationMatrix
 -- @raise This method no longer exists! Use getTransformationMatrix instead!
+
+--- Physics Ticks Event Data
+--
+-- @type physics_ticks_event_data
+
+--- Gets the Ship's buoyancy factor during the physics tick
+-- @function getBuoyancyFactor
+-- @treturn number The Ship's buoyancy factor
+
+--- Whether the Ship is static during the physics tick
+-- @function isStatic
+-- @treturn boolean Whether the Ship is static
+
+--- Whether the Ship is affected by fluid drag during the physics tick
+-- @function doFluidDrag
+-- @treturn boolean Whether the Ship has fluid drag
+
+--- Gets the Ship's Inertia Data during the physics tick
+-- @function getInertiaData
+-- @treturn table The Ship's Inertia Data comprised of mass and moment of inertia tensor
+
+--- Gets the Ship's Pose and Velocity during the physics tick
+-- @function getPoseVel
+-- @treturn table The Ship's Pose and Velocity data including position, rotation, linear velocity, and angular velocity
+
+--- Gets the Force Inducers on the Ship during the physics tick
+-- @function getForceInducers
+-- @treturn table A table of Force Inducers on the Ship
 
 if not ship then
     error("Cannot load Ship API on computer")
