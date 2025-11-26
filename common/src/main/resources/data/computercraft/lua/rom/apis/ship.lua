@@ -135,9 +135,7 @@
 
 --- Extended Ship API
 --
--- This section contains extended functions for the Ship API that provide additional functionality
--- beyond the basic Ship operations.
--- As of CC: VS 0.5.0, these functions have been rolled into the main Ship API for better usability.
+-- This section contains extended functions for the Ship API that provide additional functionality beyond the basic Ship operations. As of CC: VS 0.5.0, these functions have been rolled into the main Ship API for better usability.
 -- @section extended_ship_api
 
 --- Sets the Ship to be static or dynamic
@@ -231,8 +229,7 @@
 
 --- Deprecated Methods
 --
--- The following methods have been deprecated and are no longer available.
--- Please refer to the updated Ship API documentation for alternative methods.
+-- The following methods have been deprecated and are no longer available. Please refer to the updated Ship API documentation for alternative methods.
 -- @section deprecated
 
 --- Gets the Ship's Euler Angles in ZYX order
