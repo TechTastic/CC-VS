@@ -1,10 +1,7 @@
 package io.github.techtastic.cc_vs.util
 
 import dan200.computercraft.api.lua.LuaException
-import dan200.computercraft.shared.computer.core.ComputerFamily
 import dan200.computercraft.shared.computer.core.ServerComputer
-import io.github.techtastic.cc_vs.PlatformUtils
-import io.github.techtastic.cc_vs.apis.ExtendedShipAPI
 import io.github.techtastic.cc_vs.apis.ShipAPI
 import net.minecraft.server.level.ServerLevel
 import org.joml.Matrix3dc
@@ -19,10 +16,7 @@ object CCVSUtils {
         if (ship == null)
             return
 
-        if (!PlatformUtils.isCommandOnly() || computer.family == ComputerFamily.COMMAND)
-            computer.addAPI(ExtendedShipAPI(level, computer.position))
-        else
-            computer.addAPI(ShipAPI(level, computer.position))
+        computer.addAPI(ShipAPI(level, computer.position))
     }
 
     fun Vector3dc.toLua() = mapOf(
