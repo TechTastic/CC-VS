@@ -27,16 +27,7 @@ import java.util.*
 
 open class ShipAPI(val level: ServerLevel, val pos: BlockPos) : ILuaAPI {
     private fun verifyAdmin() {
-        var isCommand = false
-        val be = level.getBlockEntity(pos) as? TileComputer
-        try {
-            // Its being weird about Fabric stuff
-            Objects.requireNonNull(be)
-            val clazz = TileComputer::class.java
-            val method = clazz.getMethod("getFamily")
-            isCommand = method.invoke(be) == ComputerFamily.COMMAND
-        } catch (_: Exception) {}
-        if (PlatformUtils.isCommandOnly() && isCommand)
+        if (PlatformUtils.isCommandOnly() && (level.getBlockEntity(pos) as? TileComputer)?.family == ComputerFamily.COMMAND)
             throw LuaException("This method requires a Command Computer!")
     }
 
@@ -52,10 +43,7 @@ open class ShipAPI(val level: ServerLevel, val pos: BlockPos) : ILuaAPI {
         try {
             if (PlatformUtils.exposePhysTick()) {
                 val data = PhysicsTicksEventHandler.getOrCreateControl(getShip()).getData()
-                val clazz = TileComputer::class.java
-                val method = clazz.getMethod("getServerComputer")
-                val obj = method.invoke(level.getBlockEntity(pos))
-                (obj as? ServerComputer)?.queueEvent("physics_ticks", data)
+                (level.getBlockEntity(pos) as? TileComputer)?.let { computer -> computer.serverComputer?.queueEvent("physics_ticks", data) }
             }
         } catch (_: LuaException) {}
         super.update()
