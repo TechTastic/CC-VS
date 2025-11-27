@@ -6,7 +6,6 @@ import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import dan200.computercraft.shared.computer.blocks.TileComputer
 import dan200.computercraft.shared.computer.core.ComputerFamily
-import dan200.computercraft.shared.computer.core.ServerComputer
 import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.mixin.ShipObjectWorldAccessor
 import io.github.techtastic.cc_vs.ship.PhysicsTicksEventHandler
