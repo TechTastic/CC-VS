@@ -1,7 +1,9 @@
-local native
-if ship then
-    native = ship.native or ship
+if not ship then
+    error("Cannot load Ship API on computer")
 end
+
+local native = ship.native or ship
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 local deprecatedQuat = {
     "getEulerAnglesZYX",
@@ -12,24 +14,8 @@ local deprecatedQuat = {
     "getYaw",
     "getPitch"
 }
-local vectorFunctions = {
-    "getOmega",
-    "getScale",
-    "getShipyardPosition",
-    "getVelocity",
-    "getWorldspacePosition",
-    "transformPositionToWorld"
-}
 
 local env = _ENV
-
-local function toVector(v)
-    return vector.new(v.x, v.y, v.z)
-end
-
-local function toQuaternion(q)
-    return quaternion.fromComponents(q.x, q.y, q.z, q.w)
-end
 
 -- Add outdated methods to prompt transition
 for _, funct in pairs(deprecatedQuat) do
@@ -39,95 +25,136 @@ for _, funct in pairs(deprecatedQuat) do
 end
 env.getRotationMatrix = function(...) error("This method no longer exists! Use getTransformationMatrix instead!") end
 
--- Convert functions with vector outputs to actual vectors
-for _, funct in pairs(vectorFunctions) do
-    env[funct] = function(...)
-        if not native then
-            error("Ship API is only available on Ships!")
+env.pullPhysicsTicks = function(...)
+   local _, err = native.pullPhysicsTicks(...)
+   if err then
+       error(err)
+   end
+   local event = table.pack(os.pullEvent("physics_ticks"))
+   for k,v in pairs(event) do
+       if type(v) == "table" then
+           local result, _ = v.getPoseVel()
+           v.getPoseVel = function()
+               result.vel = vector.new(result.vel.x, result.vel.y, result.vel.z)
+               result.omega = vector.new(result.omega.x, result.omega.y, result.omega.z)
+               result.pos = vector.new(result.pos.x, result.pos.y, result.pos.z)
+               result.rot = quaternion.fromComponents(result.rot.x, result.rot.y, result.rot.z, result.rot.w)
+               return result
+           end
+       end
+   end
+   return table.unpack(event)
+end
+
+for k,v in pairs(native) do
+    -- Convert functions with vector outputs to actual vectors
+    if k == 'getOmega' or k == 'getScale' or k == 'getShipyardPosition' or k == 'getVelocity' or k == 'getWorldspacePosition' or k == 'transformPositionToWorld' then
+        env[k] = function(...)
+            local result, err = v(...)
+            if err then
+                error(err)
+            end
+            return vector.new(result.x, result.y, result.z)
         end
-        local result, err = native[funct](...)
-        if result then
-            return toVector(result)
+    elseif k == 'getQuaternion' then
+        env[k] = function(...)
+            local result, err = v(...)
+            if err then
+                error(err)
+            end
+            return quaternion.fromComponents(result.x, result.y, result.z, result.w)
         end
-        error(err)
-    end
-end
-
--- Convert ship.getQuaternion to output a proper quaternion
-env.getQuaternion = function(...)
-    if not native then
-        error("Ship API is only available on Ships!")
-    end
-    local result, err = native.getQuaternion(...)
-    if result then
-        return toQuaternion(result)
-    end
-    error(err)
-end
-
--- Convert ship.getTransformationMatrix to output a proper quaternion
-env.getTransformationMatrix = function(...)
-    if not native then
-        error("Ship API is only available on Ships!")
-    end
-    local result, err = native.getTransformationMatrix(...)
-    if result then
-        return matrix.from2DArray(result)
-    end
-    error(err)
-end
-
--- Convert ship.getConstraints to output proper stuff
-env.getConstraints = function(...)
-    if not native then
-        error("Ship API is only available on Ships!")
-    end
-    local result, err = native.getConstraints(...)
-    if result then
+    elseif k == 'getTransformationMatrix' then
+        env[k] = function(...)
+            local result, err = v(...)
+            if err then
+                error(err)
+            end
+            return matrix.from2DArray(result)
+        end
+    elseif k == 'getConstraints' then
+        local result, err = native.getTransformationMatrix(...)
+        if err then
+            error(err)
+        end
         for id, constraint in pairs(result) do
             if constraint.localPos0 then
-                constraint.localPos0 = toVector(constraint.localPos0)
+                constraint.localPos0 = vector.new(constraint.localPos0.x, constraint.localPos0.y, constraint.localPos0.z)
             end
             if constraint.localPos1 then
-                constraint.localPos1 = toVector(constraint.localPos1)
+                constraint.localPos1 = vector.new(constraint.localPos1.x, constraint.localPos1.y, constraint.localPos1.z)
             end
             if constraint.localRot0 then
-                constraint.localRot0 = toQuaternion(constraint.localRot0)
+                constraint.localRot0 = quaternion.fromComponents(constraint.localRot0.x, constraint.localRot0.y, constraint.localRot0.z, constraint.localRot0.w)
             end
             if constraint.localRot1 then
-                constraint.localRot1 = toQuaternion(constraint.localRot1)
+                constraint.localRot1 = quaternion.fromComponents(constraint.localRot1.x, constraint.localRot1.y, constraint.localRot1.z, constraint.localRot1.w)
             end
             if constraint.localSlideAxis0 then
-                constraint.localSlideAxis0 = toVector(localSlideAxis0)
+                constraint.localSlideAxis0 = vector.new(constraint.localSlideAxis0.x, constraint.localSlideAxis0.y, constraint.localSlideAxis0.z)
             end
             result[id] = constraint
         end
         return result
-    end
-    error(err)
-end
+    elseif k == 'applyInvariantForce' or k == 'applyInvariantTorque' or k == 'applyRotDependentForce' or k == 'applyRotDependentTorque' then
+        env[k] = function(...)
+            local args = {...}
+            local vec = args[1]
+            expect(1, vec, "table", "number")
+            if type(vec) == "table" and (getmetatable(vec) or {}).__name ~= "vector" then
+                expect(1, vec, "vector", "number")
+            end
+            local err
+            if type(vec) == "table" then
+                _, err = v(vec.x, vec.y, vec.z)
+            else
+                _, err = v(...)
+            end
+            if err then
+                error(err)
+            end
+        end
+    elseif k == 'applyInvariantForceToPos' or k == 'applyRotDependentForceToPos' then
+        env[k] = function(...)
+            local args = {...}
+            expect(1, args[1], "table", "number")
+            expect(2, args[2], "table", "number")
+            local firstVec = args[1]
+            if type(firstVec) == "table" and (getmetatable(firstVec) or {}).__name ~= "vector" then
+                expect(1, firstVec, "vector", "number")
+            end
+            local secondVec = args[2]
+            if type(secondVec) == "table" and (getmetatable(firstVec) or {}).__name ~= "vector" then
+                expect(2, secondVec, "vector", "number")
+            end
 
--- Catch "physics_ticks" event and convert all vectos and quaternions in each output to proper versions
-env.pullPhysicsTicks = function(...)
-    if not native then
-        error("Ship API is only available on Ships!")
+            local err
+            if type(firstVec) == "number" and type(secondVec) == "number" then
+                expect(3, args[3], "number")
+                expect(4, args[4], "number")
+                expect(5, args[5], "number")
+                expect(6, args[6], "number")
+                _, err = v(...)
+            elseif type(firstVec) == "table" and type(secondVec) == "table" then
+                _, err = v(firstVec.x, firstVec.y, firstVec.z, secondVec.x, secondVec.y, secondVec.z)
+            else
+                local argstr = "["
+                for i, arg in pairs(args) do
+                    local type = type(arg)
+                    argstr = argstr .. type
+                    if i == #args then
+                        argstr = argstr .. "]"
+                    else
+                        argstr = argstr .. ", "
+                    end
+                end
+                err = ("bad arguments #%d and #%d (%s expected, got %s)"):format(1, 2, "[vector, vector] or [number, number, number, number, number, number]", argstr)
+            end
+            if err then
+                error(err)
+            end
+        end
+    else
+        env[k] = v
     end
-    local _, err = native.pullPhysicsTicks(...)
-    if err then
-       error(err)
-    end
-    local event = table.pack(os.pullEvent("physics_ticks"))
-    for k,v in pairs(event) do
-       if type(v) == "table" then
-           local result, _ = v.getPoseVel()
-           v.getPoseVel = function()
-               result.vel = toVector(result.vel)
-               result.omega = toVector(result.omega)
-               result.pos = toVector(result.pos)
-               result.rot = toQuaternion(result.rot)
-               return result
-           end
-       end
-    end
-    return table.unpack(event)
 end
