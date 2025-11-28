@@ -23,5 +23,6 @@ quaternion.lua
 matrix.txt
 quaternion.txt
 pid.lua
+mmath.lua
 
 docs/
