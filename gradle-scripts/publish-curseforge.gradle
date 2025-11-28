@@ -1,27 +1,29 @@
 // Publish to CurseForge
 curseforge {
-    apiKey = System.getenv("CURSEFORGE_TOKEN")
-    project {
-        id = project.curse_project_id
-        releaseType = 'release'
-        changelogType = 'markdown'
-        changelog = rootProject.file("changelog.md").text
-        addGameVersion project.minecraft_version
-        addGameVersion project.loader_platform
+    if (System.getenv("CURSEFORGE_TOKEN") != null) {
+        apiKey = System.getenv("CURSEFORGE_TOKEN")
+        project {
+            id = project.curse_project_id
+            releaseType = 'release'
+            changelogType = 'markdown'
+            changelog = rootProject.file("changelog.md").text
+            addGameVersion project.minecraft_version
+            addGameVersion project.loader_platform
 
-        mainArtifact(remapJar.archiveFile.get().asFile) {
-            relations {
-                requiredDependency 'valkyrien-skies'
-                requiredDependency 'cc-tweaked'
-                if (project.loader_platform == "Forge")
-                    requiredDependency 'kotlin-for-forge'
+            mainArtifact(remapJar.archiveFile.get().asFile) {
+                relations {
+                    requiredDependency 'valkyrien-skies'
+                    requiredDependency 'cc-tweaked'
+                    if (project.loader_platform == "Forge")
+                        requiredDependency 'kotlin-for-forge'
+                }
+                displayName = 'CC: VS ' + project.minecraft_version + ' ' + project.loader_platform + ' ' + project.mod_version
             }
-            displayName = 'CC: VS ' + project.minecraft_version + ' ' + project.loader_platform + ' ' + project.mod_version
         }
-    }
-    options {
-        forgeGradleIntegration = false
-        javaVersionAutoDetect = false
+        options {
+            forgeGradleIntegration = false
+            javaVersionAutoDetect = false
+        }
     }
 }
 
