@@ -16,6 +16,7 @@ classes/
 .vscode
 .settings
 *.launch
+.architectury-transformer
 
 quaternion.lua
 matrix.lua
