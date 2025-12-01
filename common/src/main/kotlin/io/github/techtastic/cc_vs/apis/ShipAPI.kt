@@ -10,28 +10,44 @@ import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.mixin.ShipObjectWorldAccessor
 import io.github.techtastic.cc_vs.ship.PhysicsTicksEventHandler
 import io.github.techtastic.cc_vs.ship.QueuedForcesApplier
-import io.github.techtastic.cc_vs.util.CCVSUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils.toLua
 import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec
-import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.phys.Vec3
 import org.joml.*
 import org.joml.primitives.AABBi
 import org.valkyrienskies.core.api.ships.LoadedServerShip
-import org.valkyrienskies.core.api.ships.ServerShip
-import org.valkyrienskies.core.apigame.constraints.VSAttachmentConstraint
-import org.valkyrienskies.core.apigame.constraints.VSConstraintAndId
-import org.valkyrienskies.core.game.ships.ShipObjectServer
+import org.valkyrienskies.core.api.ships.PhysShip
+import org.valkyrienskies.core.api.util.PhysTickOnly
+import org.valkyrienskies.core.api.world.PhysLevel
+import org.valkyrienskies.core.api.world.properties.DimensionId
+import org.valkyrienskies.core.internal.joints.VSJointAndId
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl
+import org.valkyrienskies.mod.api.BlockEntityPhysicsListener
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod
+import org.valkyrienskies.mod.common.dimensionId
 import org.valkyrienskies.mod.common.getShipObjectManagingPos
 import org.valkyrienskies.mod.common.shipObjectWorld
-import org.valkyrienskies.mod.common.util.toJOML
 import org.valkyrienskies.mod.common.vsCore
-import kotlin.math.asin
-import kotlin.math.atan2
 
-open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
+open class ShipAPI(val system: IComputerSystem) : ILuaAPI, BlockEntityPhysicsListener {
+    override var dimension: DimensionId
+        get() = system.level.dimensionId
+        set(value) {}
+
+    @OptIn(PhysTickOnly::class)
+    override fun physTick(
+        physShip: PhysShip?,
+        physLevel: PhysLevel
+    ) {
+        physShip.
+    }
+
+    private fun registerTicker() {
+        this.dimension = system.level.dimensionId
+        ValkyrienSkiesMod.getBlockEntityPhysTicker(this.dimension, system.position) ?: run {
+            return ValkyrienSkiesMod.addBlockEntityPhysTicker(this.dimension, system.position, this@ShipAPI)
+        }
+    }
+
     private fun verifyAdmin() {
         if (PlatformUtils.isCommandOnly() && system.getComponent(ComputerComponents.ADMIN_COMPUTER) == null)
             throw LuaException("This method requires a Command Computer!")
@@ -46,6 +62,7 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     }
 
     override fun update() {
+        registerTicker()
         try {
             if (PlatformUtils.exposePhysTick()) {
                 val data = PhysicsTicksEventHandler.getOrCreateControl(getShip()).getData()
@@ -79,12 +96,8 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
         getShip().inertiaData.mass
 
     @LuaFunction
-    fun getMomentOfInertiaTensorToSave(): List<List<Double>> =
-        getShip().inertiaData.momentOfInertiaTensorToSave.toLua()
-
-    @LuaFunction
     fun getMomentOfInertiaTensor(): List<List<Double>> =
-        getShip().inertiaData.momentOfInertiaTensor.toLua()
+        getShip().inertiaData.inertiaTensor.toLua()
 
     @LuaFunction
     fun getSlug(): String = getShip().slug ?: "no-name"
