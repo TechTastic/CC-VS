@@ -3,7 +3,7 @@ package io.github.techtastic.cc_vs.util
 import dan200.computercraft.api.lua.LuaException
 import io.github.techtastic.cc_vs.CCVSMod
 import org.joml.*
-import org.valkyrienskies.core.apigame.constraints.*
+import org.valkyrienskies.core.internal.joints.*
 
 object CCVSUtils {
     fun Vector3dc.toLua() = mapOf(
@@ -32,71 +32,57 @@ object CCVSUtils {
 
     fun getComputerByID(id: Int) = CCVSMod.context.registry().computers.find { computer -> computer.id == id }
 
-    fun VSConstraintAndId.toLua() = mapOf(Pair("id", this.constraintId), Pair("constraint", this.vsConstraint.toLua()))
+    fun VSJointAndId.toLua() = mapOf(Pair("id", this.jointId), Pair("constraint", this.joint.toLua()))
 
-    fun VSConstraint.toLua(): Map<String, Any> {
-        val constraint = mutableMapOf<String, Any>()
+    fun VSJointPose.toLua() = mapOf("pos" to this.pos.toLua(), "rot" to this.rot.toLua())
+
+    fun VSD6Joint.LinearLimitPair.toLua() = mapOf(
+        "lowerLimit" to this.lowerLimit.toDouble(),
+        "upperLimit" to this.upperLimit.toDouble(),
+        "restitution" to this.restitution?.toDouble(),
+        "bounceThreshold" to this.bounceThreshold?.toDouble(),
+        "stiffness" to this.stiffness?.toDouble(),
+        "damping" to this.damping?.toDouble()
+    )
+
+    fun VSD6Joint.LimitCone.toLua() = mapOf(
+        "yLimitAngle" to this.yLimitAngle.toDouble(),
+        "zLimitAngle" to this.zLimitAngle.toDouble(),
+        "restitution" to this.restitution?.toDouble(),
+        "bounceThreshold" to this.bounceThreshold?.toDouble(),
+        "stiffness" to this.stiffness?.toDouble(),
+        "damping" to this.damping?.toDouble()
+    )
+
+    fun VSJoint.toLua(): Map<String, Any?> {
+        val constraint = mutableMapOf<String, Any?>()
 
         constraint["shipId0"] = this.shipId0
+        constraint["pose0"] = this.pose0.toLua()
         constraint["shipId1"] = this.shipId1
-        constraint["type"] = this.constraintType.name
-        constraint["compliance"] = this.compliance
+        constraint["pose1"] = this.pose1.toLua()
+        constraint["type"] = this.jointType.name
+        constraint["maxForce"] = this.maxForceTorque?.maxForce?.toDouble()
+        constraint["maxTorque"] = this.maxForceTorque?.maxTorque?.toDouble()
 
-        if (this is VSForceConstraint) {
-            constraint["localPos0"] = this.localPos0.toLua()
-            constraint["localPos1"] = this.localPos1.toLua()
-            constraint["maxForce"] = this.maxForce
-        }
-
-        if (this is VSTorqueConstraint) {
-            constraint["localRot0"] = this.localRot0.toLua()
-            constraint["localRot1"] = this.localRot1.toLua()
-            constraint["maxTorque"] = this.maxTorque
-        }
-
-        when (this) {
-            is VSAttachmentConstraint -> {
-                constraint["fixedDistance"] = this.fixedDistance
-            }
-
-            is VSHingeSwingLimitsConstraint -> {
-                constraint["minSwingAngle"] = this.minSwingAngle
-                constraint["maxSwingAngle"] = this.maxSwingAngle
-            }
-
-            is VSHingeTargetAngleConstraint -> {
-                constraint["targetAngle"] = this.targetAngle
-                constraint["nextTickTargetAngle"] = this.nextTickTargetAngle
-            }
-
-            is VSPosDampingConstraint -> {
-                constraint["posDamping"] = this.posDamping
-            }
-
-            is VSRopeConstraint -> {
-                constraint["ropeLength"] = this.ropeLength
-            }
-
-            is VSRotDampingConstraint -> {
-                constraint["rotDamping"] = this.rotDamping
-                constraint["rotDampingAxes"] = this.rotDampingAxes.name
-            }
-
-            is VSSlideConstraint -> {
-                constraint["localSlideAxis0"] = this.localSlideAxis0.toLua()
-                constraint["maxDistBetweenPoints"] = this.maxDistBetweenPoints
-            }
-
-            is VSSphericalSwingLimitsConstraint -> {
-                constraint["minSwingAngle"] = this.minSwingAngle
-                constraint["maxSwingAngle"] = this.maxSwingAngle
-            }
-
-            is VSSphericalTwistLimitsConstraint -> {
-                constraint["minTwistAngle"] = this.minTwistAngle
-                constraint["maxTwistAngle"] = this.maxTwistAngle
-            }
-            else -> {}
+        if (this is VSDistanceJoint) {
+            constraint["minDistance"] = this.minDistance?.toDouble()
+            constraint["maxDistance"] = this.maxDistance?.toDouble()
+            constraint["tolerance"] = this.tolerance?.toDouble()
+            constraint["stiffness"] = this.stiffness?.toDouble()
+            constraint["damping"] = this.damping?.toDouble()
+        } else if (this is VSPrismaticJoint) {
+            constraint["linearLimitPair"] = this.linearLimitPair?.toLua()
+        } else if (this is VSSphericalJoint) {
+            constraint["limitCone"] = this.limitCone?.toLua()
+        } else if (this is VSRevoluteJoint) {
+            TODO("VSRevoluteJoint to Lua")
+        } else if (this is VSGearJoint) {
+            TODO("VSGearJoint to Lua")
+        } else if (this is VSRackAndPinionJoint) {
+            TODO("VSRackAndPinionJoint to Lua")
+        } else if (this is VSD6Joint) {
+            TODO("VSD6Joint to Lua")
         }
 
         return constraint
