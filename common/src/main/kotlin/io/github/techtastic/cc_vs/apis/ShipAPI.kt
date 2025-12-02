@@ -7,18 +7,19 @@ import dan200.computercraft.api.lua.ILuaAPI
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import io.github.techtastic.cc_vs.PlatformUtils
-import io.github.techtastic.cc_vs.util.CCVSUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils.toLua
 import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
 import org.joml.*
 import org.joml.primitives.AABBi
+import org.valkyrienskies.core.api.VsBeta
 import org.valkyrienskies.core.api.ships.LoadedServerShip
 import org.valkyrienskies.core.api.util.GameTickOnly
+import org.valkyrienskies.core.api.util.PhysTickOnly
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl
-import org.valkyrienskies.core.internal.joints.VSJoint
 import org.valkyrienskies.core.internal.joints.VSJointAndId
 import org.valkyrienskies.core.internal.world.VsiPhysLevel
 import org.valkyrienskies.mod.common.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -28,7 +29,11 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
         get() = system.level.getLoadedShipManagingPos(system.position)
             ?: throw LuaException("This computer is not on a Ship!")
 
+    @OptIn(PhysTickOnly::class)
     val joints: CopyOnWriteArrayList<VSJointAndId> = CopyOnWriteArrayList()
+    private val startCollisions: ConcurrentHashMap.KeySetView<Map<String, Any>, Boolean> = ConcurrentHashMap.newKeySet()
+    private val persistCollisions: ConcurrentHashMap.KeySetView<Map<String, Any>, Boolean> = ConcurrentHashMap.newKeySet()
+    private val endCollisions: ConcurrentHashMap.KeySetView<Map<String, Any>, Boolean> = ConcurrentHashMap.newKeySet()
 
     private val queuedData = ConcurrentLinkedQueue<LuaPhysShip>()
 
@@ -37,7 +42,7 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
             throw LuaException("This method requires a Command Computer!")
     }
 
-    @OptIn(GameTickOnly::class)
+    @OptIn(GameTickOnly::class, PhysTickOnly::class, VsBeta::class)
     override fun startup() {
         ValkyrienSkiesMod.api.physTickEvent.on { event ->
             joints.clear()
@@ -46,6 +51,10 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
                 world.getJointById(id)?.let { joint -> joints.add(VSJointAndId(id, joint)) }
             }
         }
+
+        ValkyrienSkiesMod.api.collisionStartEvent.on { event -> startCollisions.add(event.toLua()) }
+        ValkyrienSkiesMod.api.collisionPersistEvent.on { event -> persistCollisions.add(event.toLua()) }
+        ValkyrienSkiesMod.api.collisionEndEvent.on { event -> endCollisions.add(event.toLua()) }
 
         try {
             if (PlatformUtils.exposePhysTick())
@@ -57,6 +66,13 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     }
 
     override fun update() {
+        system.queueEvent("collisions_started", *this.startCollisions.toTypedArray())
+        startCollisions.clear()
+        system.queueEvent("collisions_persisted", *this.persistCollisions.toTypedArray())
+        persistCollisions.clear()
+        system.queueEvent("collisions_ended", *this.endCollisions.toTypedArray())
+        endCollisions.clear()
+
         try {
             if (PlatformUtils.exposePhysTick()) {
                 system.queueEvent("physics_ticks", *queuedData.toTypedArray())
@@ -86,7 +102,7 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getOmega(): Map<String, Double> = ship.omega.toLua()
+    fun getAngularVelocity(): Map<String, Double> = ship.angularVelocity.toLua()
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
@@ -154,6 +170,7 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
         return matrix.toList()
     }
 
+    @OptIn(PhysTickOnly::class)
     @LuaFunction
     fun getJoints(): List<*> {
         return joints.map { combo -> combo.toLua() }.toList()
@@ -240,7 +257,7 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
         if (input.containsKey("vel"))
             vel = getVectorFromTable(input, "vel")
 
-        var omega = ship.omega
+        var omega = ship.angularVelocity
         if (input.containsKey("omega"))
             omega = getVectorFromTable(input, "omega")
 
