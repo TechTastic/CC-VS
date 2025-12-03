@@ -4,7 +4,10 @@ import dan200.computercraft.api.lua.LuaException
 import org.joml.*
 import org.valkyrienskies.core.api.VsBeta
 import org.valkyrienskies.core.api.events.CollisionEvent
+import org.valkyrienskies.core.api.events.MergeEvent
+import org.valkyrienskies.core.api.events.SplitEvent
 import org.valkyrienskies.core.api.physics.ContactPoint
+import org.valkyrienskies.core.api.util.GameTickOnly
 import org.valkyrienskies.core.api.util.PhysTickOnly
 import org.valkyrienskies.core.internal.joints.*
 import kotlin.Any
@@ -52,6 +55,26 @@ object CCVSUtils {
         "normal" to this.normal.toLua(),
         "separation" to this.separation.toDouble(),
         "velocity" to this.velocity.toLua()
+    )
+
+    @OptIn(VsBeta::class, GameTickOnly::class)
+    fun MergeEvent.toLua() = mapOf(
+        "stillPocket" to this.stillPocket,
+        "oldRootA" to Vector3d(this.oldRootA).toLua(),
+        "oldRootB" to Vector3d(this.oldRootB).toLua(),
+        "newRoot" to Vector3d(this.newRoot).toLua(),
+        "voxelType" to this.voxelType,
+        "dimensionId" to this.dimensionId
+    )
+
+    @OptIn(VsBeta::class, GameTickOnly::class)
+    fun SplitEvent.toLua() = mapOf(
+        "wasPocket" to this.wasPocket,
+        "oldRoot" to Vector3d(this.oldRoot).toLua(),
+        "newRootA" to Vector3d(this.newRootA).toLua(),
+        "newRootB" to Vector3d(this.newRootB).toLua(),
+        "voxelType" to this.voxelType,
+        "dimensionId" to this.dimensionId
     )
 
     @OptIn(PhysTickOnly::class)
