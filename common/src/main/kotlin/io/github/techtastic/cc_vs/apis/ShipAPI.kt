@@ -1,12 +1,12 @@
 package io.github.techtastic.cc_vs.apis
 
-import dan200.computercraft.api.component.ComputerComponents
 import dan200.computercraft.api.lua.IArguments
 import dan200.computercraft.api.lua.IComputerSystem
 import dan200.computercraft.api.lua.ILuaAPI
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
 import io.github.techtastic.cc_vs.PlatformUtils
+import io.github.techtastic.cc_vs.util.CCVSUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils.toLua
 import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
 import org.joml.*
@@ -25,7 +25,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 
 open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
-    var dimensionId: DimensionId? = null
+    private val dimensionId: DimensionId
+        get() = system.level.dimensionId
     @OptIn(GameTickOnly::class)
     val ship: LoadedServerShip
         get() = system.level.getLoadedShipManagingPos(system.position)
@@ -38,11 +39,6 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     private val endCollisions: ConcurrentHashMap.KeySetView<Map<String, Any>, Boolean> = ConcurrentHashMap.newKeySet()
 
     private val queuedData = ConcurrentLinkedQueue<LuaPhysShip>()
-
-    private fun verifyAdmin() {
-        if (PlatformUtils.isCommandOnly() && system.getComponent(ComputerComponents.ADMIN_COMPUTER) == null)
-            throw LuaException("This method requires a Command Computer!")
-    }
 
     @OptIn(GameTickOnly::class, PhysTickOnly::class, VsBeta::class)
     override fun startup() {
@@ -85,8 +81,6 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     }
 
     override fun update() {
-        this.dimensionId = system.level.dimensionId
-
         if (startCollisions.isNotEmpty()) {
             system.queueEvent("collisions_started", *this.startCollisions.toTypedArray())
             startCollisions.clear()
@@ -180,7 +174,7 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun setSlug(name: String) {
-        ship.slug = name
+        ValkyrienSkiesMod.vsCore.renameShip(ship, name)
     }
 
     @OptIn(GameTickOnly::class)
@@ -213,60 +207,63 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun applyInvariantForce(forceX: Double, forceY: Double, forceZ: Double) {
-        verifyAdmin()
+        CCVSUtils.verifyAdmin(system)
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyInvariantForce(ship.id, Vector3d(forceX, forceY, forceZ))
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun applyInvariantTorque(torqueX: Double, torqueY: Double, torqueZ: Double) {
-        verifyAdmin()
+        CCVSUtils.verifyAdmin(system)
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyInvariantTorque(ship.id, Vector3d(torqueX, torqueY, torqueZ))
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun applyInvariantForceToPos(forceX: Double, forceY: Double, forceZ: Double, posX: Double, posY: Double, posZ: Double) {
-        verifyAdmin()
+        CCVSUtils.verifyAdmin(system)
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyInvariantForceToPos(ship.id, Vector3d(forceX, forceY, forceZ), Vector3d(posX, posY, posZ))
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun applyRotDependentForce(forceX: Double, forceY: Double, forceZ: Double) {
-        verifyAdmin()
+        CCVSUtils.verifyAdmin(system)
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyRotDependentForce(ship.id, Vector3d(forceX, forceY, forceZ))
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun applyRotDependentTorque(torqueX: Double, torqueY: Double, torqueZ: Double) {
-        verifyAdmin()
+        CCVSUtils.verifyAdmin(system)
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyRotDependentTorque(ship.id, Vector3d(torqueX, torqueY, torqueZ))
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun applyRotDependentForceToPos(forceX: Double, forceY: Double, forceZ: Double, posX: Double, posY: Double, posZ: Double) {
-        verifyAdmin()
+        CCVSUtils.verifyAdmin(system)
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyRotDependentForceToPos(ship.id, Vector3d(forceX, forceY, forceZ), Vector3d(posX, posY, posZ))
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun setStatic(b: Boolean) {
+        CCVSUtils.verifyAdmin(system)
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).setStatic(ship.id, b)
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun setScale(scale: Double) {
+        CCVSUtils.verifyAdmin(system)
         vsCore.scaleShip(system.level.shipObjectWorld, ship, scale)
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
     fun teleport(args: IArguments) {
+        CCVSUtils.verifyAdmin(system)
         if (!PlatformUtils.canTeleport())
             throw LuaException("Teleporting is Disabled via CC: VS Config!")
 

@@ -1,15 +1,20 @@
 package io.github.techtastic.cc_vs.util
 
+import dan200.computercraft.api.component.ComputerComponents
+import dan200.computercraft.api.lua.IComputerSystem
 import dan200.computercraft.api.lua.LuaException
+import io.github.techtastic.cc_vs.PlatformUtils
 import org.joml.*
 import org.valkyrienskies.core.api.VsBeta
 import org.valkyrienskies.core.api.events.CollisionEvent
 import org.valkyrienskies.core.api.events.MergeEvent
 import org.valkyrienskies.core.api.events.SplitEvent
 import org.valkyrienskies.core.api.physics.ContactPoint
+import org.valkyrienskies.core.api.ships.LoadedServerShip
 import org.valkyrienskies.core.api.util.GameTickOnly
 import org.valkyrienskies.core.api.util.PhysTickOnly
 import org.valkyrienskies.core.internal.joints.*
+import org.valkyrienskies.mod.common.getLoadedShipManagingPos
 import kotlin.Any
 import kotlin.Double
 import kotlin.Pair
@@ -17,6 +22,11 @@ import kotlin.String
 import kotlin.to
 
 object CCVSUtils {
+    fun verifyAdmin(system: IComputerSystem) {
+        if (PlatformUtils.isCommandOnly() && system.getComponent(ComputerComponents.ADMIN_COMPUTER) == null)
+            throw LuaException("This method requires a Command Computer!")
+    }
+
     fun Vector3dc.toLua() = mapOf(
         Pair("x", this.x()),
         Pair("y", this.y()),
