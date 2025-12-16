@@ -1,9 +1,5 @@
 --- This API is added by CC: VS and allows CC: Tweaked computers to access information from Valkyrien Skies Ships.
 --
--- If you are interested in using [CCSharp][ccsharp], here is the compatible [Ship.cs][ccsharp-ship] file. DO note that it requires the [Advanced Math][advanced-math] C# files as well.
---
--- [ccsharp]: https://github.com/monkeymanboy/CCSharp
--- [ccsharp-ship]: https://github.com/TechTastic/CC-VS/blob/1.20.x/main/CCSharp/src/CCSharp/CCVS/Ship.cs
 -- [advanced-math]: https://github.com/TechTastic/Advanced-Math/tree/0.2.0/CCSharp/src/CCSharp/AdvancedMath
 --
 -- @module ship
