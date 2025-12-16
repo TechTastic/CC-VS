@@ -5,30 +5,16 @@ import dan200.computercraft.api.lua.IComputerSystem
 import dan200.computercraft.api.lua.ILuaAPI
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaFunction
-import io.github.techtastic.cc_vs.PlatformUtils
-import io.github.techtastic.cc_vs.util.CCVSUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils.toLua
-import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
 import io.github.techtastic.cc_vs.util.CCVSUtils.verifyAdmin
 import org.joml.*
-import org.joml.primitives.AABBi
 import org.valkyrienskies.core.api.VsBeta
 import org.valkyrienskies.core.api.ships.LoadedServerShip
 import org.valkyrienskies.core.api.util.GameTickOnly
-import org.valkyrienskies.core.api.util.PhysTickOnly
-import org.valkyrienskies.core.api.world.properties.DimensionId
-import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl
-import org.valkyrienskies.core.internal.joints.VSJointAndId
-import org.valkyrienskies.core.internal.world.VsiPhysLevel
 import org.valkyrienskies.mod.common.*
 import java.lang.Math
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.CopyOnWriteArrayList
 
 open class DragAPI(val system: IComputerSystem) : ILuaAPI {
-    private val dimensionId: DimensionId
-        get() = system.level.dimensionId
     @OptIn(GameTickOnly::class)
     val ship: LoadedServerShip
         get() = system.level.getLoadedShipManagingPos(system.position)

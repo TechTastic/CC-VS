@@ -1,10 +1,6 @@
 package io.github.techtastic.cc_vs.apis
 
-import dan200.computercraft.api.lua.IArguments
-import dan200.computercraft.api.lua.IComputerSystem
-import dan200.computercraft.api.lua.ILuaAPI
-import dan200.computercraft.api.lua.LuaException
-import dan200.computercraft.api.lua.LuaFunction
+import dan200.computercraft.api.lua.*
 import io.github.techtastic.cc_vs.PlatformUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils.toLua
@@ -203,47 +199,82 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
             throw LuaException("Physics Tick is not exposed! This is a configuration option!")
         return null
     }
-
+    
     @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyInvariantForce(forceX: Double, forceY: Double, forceZ: Double) {
+    fun applyWorldForce(forceInWorldX: Double, forceInWorldY: Double, forceInWorldZ: Double, posInWorldX: Double?, posInWorldY: Double?, posInWorldZ: Double?) {
         CCVSUtils.verifyAdmin(system)
-        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyInvariantForce(ship.id, Vector3d(forceX, forceY, forceZ))
+        val posInWorld: Vector3d? = posInWorldX?.let { x -> 
+            posInWorldY?.let { y -> 
+                posInWorldZ?.let { z -> 
+                    Vector3d(x, y, z)
+                } ?: throw LuaValues.badArgument(5, "number", "nil") 
+            } ?: throw LuaValues.badArgument(6, "number", "nil") 
+        }
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyWorldForce(ship.id, Vector3d(forceInWorldX, forceInWorldY, forceInWorldZ), posInWorld)
+    }
+    
+    @OptIn(GameTickOnly::class)
+    @LuaFunction
+    fun applyWorldTorque(torqueInWorldX: Double, torqueInWorldY: Double, torqueInWorldZ: Double) {
+        CCVSUtils.verifyAdmin(system)
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyWorldTorque(ship.id, Vector3d(torqueInWorldX, torqueInWorldY, torqueInWorldZ))
+    }
+    
+    @OptIn(GameTickOnly::class)
+    @LuaFunction
+    fun applyModelForce(forceInShipX: Double, forceInShipY: Double, forceInShipZ: Double, posInShipX: Double?, posInShipY: Double?, posInShipZ: Double?) {
+        CCVSUtils.verifyAdmin(system)
+        val posInShip: Vector3d? = posInShipX?.let { x ->
+            posInShipY?.let { y ->
+                posInShipZ?.let { z ->
+                    Vector3d(x, y, z)
+                } ?: throw LuaValues.badArgument(5, "number", "nil")
+            } ?: throw LuaValues.badArgument(6, "number", "nil")
+        }
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyModelForce(ship.id, Vector3d(forceInShipX, forceInShipY, forceInShipZ), posInShip)
+    }
+    
+    @OptIn(GameTickOnly::class)
+    @LuaFunction
+    fun applyModelTorque(torqueInShipX: Double, torqueInShipY: Double, torqueInShipZ: Double) {
+        CCVSUtils.verifyAdmin(system)
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyModelTorque(ship.id, Vector3d(torqueInShipX, torqueInShipY, torqueInShipZ))
+    }
+    
+    @OptIn(GameTickOnly::class)
+    @LuaFunction
+    fun applyWorldForceToModelPos(forceInWorldX: Double, forceInWorldY: Double, forceInWorldZ: Double, posInShipX: Double, posInShipY: Double, posInShipZ: Double) {
+        CCVSUtils.verifyAdmin(system)
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyWorldForceToModelPos(ship.id, Vector3d(forceInWorldX, forceInWorldY, forceInWorldZ), Vector3d(posInShipX, posInShipY, posInShipZ))
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyInvariantTorque(torqueX: Double, torqueY: Double, torqueZ: Double) {
+    fun applyBodyForce(forceInBodyX: Double, forceInBodyY: Double, forceInBodyZ: Double, posInBodyX: Double?, posInBodyY: Double?, posInBodyZ: Double?) {
         CCVSUtils.verifyAdmin(system)
-        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyInvariantTorque(ship.id, Vector3d(torqueX, torqueY, torqueZ))
+        val posInBody: Vector3d = posInBodyX?.let { x ->
+            posInBodyY?.let { y ->
+                posInBodyZ?.let { z ->
+                    Vector3d(x, y, z)
+                } ?: throw LuaValues.badArgument(5, "number", "nil")
+            } ?: throw LuaValues.badArgument(6, "number", "nil")
+        } ?: Vector3d()
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyBodyForce(ship.id, Vector3d(forceInBodyX, forceInBodyY, forceInBodyZ), posInBody)
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyInvariantForceToPos(forceX: Double, forceY: Double, forceZ: Double, posX: Double, posY: Double, posZ: Double) {
+    fun applyBodyTorque(torqueInBodyX: Double, torqueInBodyY: Double, torqueInBodyZ: Double) {
         CCVSUtils.verifyAdmin(system)
-        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyInvariantForceToPos(ship.id, Vector3d(forceX, forceY, forceZ), Vector3d(posX, posY, posZ))
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyBodyTorque(ship.id, Vector3d(torqueInBodyX, torqueInBodyY, torqueInBodyZ))
     }
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyRotDependentForce(forceX: Double, forceY: Double, forceZ: Double) {
+    fun applyWorldForceToBodyPos(forceInWorldX: Double, forceInWorldY: Double, forceInWorldZ: Double, posInBodyX: Double, posInBodyY: Double, posInBodyZ: Double) {
         CCVSUtils.verifyAdmin(system)
-        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyRotDependentForce(ship.id, Vector3d(forceX, forceY, forceZ))
-    }
-
-    @OptIn(GameTickOnly::class)
-    @LuaFunction
-    fun applyRotDependentTorque(torqueX: Double, torqueY: Double, torqueZ: Double) {
-        CCVSUtils.verifyAdmin(system)
-        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyRotDependentTorque(ship.id, Vector3d(torqueX, torqueY, torqueZ))
-    }
-
-    @OptIn(GameTickOnly::class)
-    @LuaFunction
-    fun applyRotDependentForceToPos(forceX: Double, forceY: Double, forceZ: Double, posX: Double, posY: Double, posZ: Double) {
-        CCVSUtils.verifyAdmin(system)
-        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyRotDependentForceToPos(ship.id, Vector3d(forceX, forceY, forceZ), Vector3d(posX, posY, posZ))
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyWorldForceToModelPos(ship.id, Vector3d(forceInWorldX, forceInWorldY, forceInWorldZ), Vector3d(posInBodyX, posInBodyY, posInBodyZ))
     }
 
     @OptIn(GameTickOnly::class)
