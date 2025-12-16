@@ -88,7 +88,7 @@ object CCVSUtils {
     )
 
     @OptIn(PhysTickOnly::class)
-    fun VSJointAndId.toLua() = mapOf(Pair("id", this.jointId), Pair("constraint", this.joint.toLua()))
+    fun VSJointAndId.toLua() = mapOf(Pair("id", this.jointId), Pair("joint", this.joint.toLua()))
 
     @OptIn(PhysTickOnly::class)
     fun VSJointPose.toLua() = mapOf("pos" to this.pos.toLua(), "rot" to this.rot.toLua())

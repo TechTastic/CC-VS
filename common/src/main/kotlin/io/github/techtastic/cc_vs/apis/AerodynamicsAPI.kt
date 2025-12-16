@@ -8,6 +8,7 @@ import org.valkyrienskies.core.api.VsBeta
 import org.valkyrienskies.core.api.util.AerodynamicUtils
 import org.valkyrienskies.core.api.util.GameTickOnly
 import org.valkyrienskies.core.api.world.properties.DimensionId
+import org.valkyrienskies.mod.api.positionToWorld
 import org.valkyrienskies.mod.common.ValkyrienSkiesMod
 import org.valkyrienskies.mod.common.dimensionId
 
@@ -68,21 +69,21 @@ class AerodynamicsAPI(private val system: IComputerSystem): ILuaAPI {
     @OptIn(VsBeta::class)
     @LuaFunction
     fun getAirDensity(args: IArguments): Double? {
-        val y = args.optDouble(0, system.position.center.y)
+        val y = args.optDouble(0, system.level.positionToWorld(system.position.center).y)
         return utils?.getAirDensityForY(y, dimensionId)
     }
 
     @OptIn(VsBeta::class)
     @LuaFunction
     fun getAirPressure(args: IArguments): Double? {
-        val y = args.optDouble(0, system.position.center.y)
+        val y = args.optDouble(0, system.level.positionToWorld(system.position.center).y)
         return utils?.getAirPressureForY(y, dimensionId)
     }
 
     @OptIn(VsBeta::class)
     @LuaFunction
     fun getAirTemperature(args: IArguments): Double? {
-        val y = args.optDouble(0, system.position.center.y)
+        val y = args.optDouble(0, system.level.positionToWorld(system.position.center).y)
         return utils?.getAirTemperatureForY(y, dimensionId)
     }
 }
