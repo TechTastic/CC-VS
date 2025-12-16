@@ -1,0 +1,15 @@
+Functions in the Drag API:
+drag.getDragForce()
+drag.getLiftForce()
+
+Note: Methods past this point require a Command Computer by default!
+
+drag.enableDrag()
+drag.disableDrag()
+drag.enableLift()
+drag.disableLift()
+drag.enableRotDrag()
+drag.disableRotDrag()
+drag.setWindDirection( vector )
+drag.setWindSpeed( number )
+drag.applyWindImpulse( vector, number )

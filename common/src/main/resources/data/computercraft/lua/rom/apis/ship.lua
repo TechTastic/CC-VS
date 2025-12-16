@@ -36,9 +36,9 @@
 -- @see setStatic
 -- @raise This method errors if there is no Ship associated with the computer
 
---- Gets the constraints on the Ship
--- @function getConstraints
--- @treturn table A table of constraints on the Ship
+--- Gets the joints on the Ship
+-- @function getJoints
+-- @treturn table A table of joints on the Ship
 -- @raise This method errors if there is no Ship associated with the computer
 
 --- Gets the Ship's Center of Mass in ship-local coordinates
@@ -127,7 +127,7 @@
 --
 -- This function instantly moves the Ship to the specified position and orientation.
 -- It does not take into account any physics simulation and may result in unexpected behavior
--- if the new position intersects with other objects or violates physics constraints.
+-- if the new position intersects with other objects or violates physics joints.
 --
 -- Note: This function may cause physics instability if used improperly.
 -- Use with caution.
@@ -136,70 +136,62 @@
 -- @tparam table data The new position and orientation for the Ship
 -- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it OR if this method is disabled in the configuration.
 
---- Applies an invariant force to the Ship
+--- Applies a force in World Space to a ship at a World Space position. A World Space force is independent of the ship's transform, and is always global; for example, up in World Space is ALWAYS (0, 1, 0) (as in, towards the sky), regardless of the ship's orientation.
 --
--- An invariant force is applied in world coordinates and does not change with the Ship's rotation.
---
--- @function applyInvariantForce
--- @tparam vector|number x Either a vector representing the force, or the X component of the force
--- @tparam number|nil y The Y component of the force (if x is a number)
--- @tparam number|nil z The Z component of the force (if x is a number)
+-- @function applyWorldForce
+-- @tparam vector force The force vector in World Space
+-- @tparam vector|nil position The position in World Space where the force is applied. Defaults to the ship's center of mass in World Space
 -- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it.
 
---- Applies an invariant torque to the Ship
+--- Applies a torque in World Space to a ship at a World Space position. A World Space torque is independent of the ship's transform, and is always global; for example, up in World Space is ALWAYS (0, 1, 0) (as in, towards the sky), regardless of the ship's orientation.
 --
--- An invariant torque is applied in world coordinates and does not change with the Ship's rotation.
---
--- @function applyInvariantTorque
--- @tparam vector|number x Either a vector representing the torque, or the X component of the torque
--- @tparam number|nil y The Y component of the torque (if x is a number)
--- @tparam number|nil z The Z component of the torque (if x is a number)
+-- @function applyWorldTorque
+-- @tparam vector torque The torque vector in World Space
 -- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it.
 
---- Applies an invariant force to the Ship at a specific position
+--- Applies a force in Model Space to a ship at a Model Space position. A Model Space force is relative to the ship's transform, meaning that it rotates and scales with the ship; for example, a ship rotated on its side applying a force pointing to (0, 1, 0) in Model Space would be perpendicular to World Space up.
 --
--- An invariant force is applied in world coordinates and does not change with the Ship's rotation.
+-- This is useful for a Thruster or similar block that should apply a force relative to the ship's orientation
 --
--- @function applyInvariantForceToPos
--- @tparam vector|number fx Either a vector representing the force, or the X component of the force
--- @tparam vector|number fy Either a vector representing the position, or the Y component of the force
--- @tparam number|nil fz The Z component of the force (if fx is a number)
--- @tparam number|nil px The X component of the position (if pos is a number)
--- @tparam number|nil py The Y component of the position (if pos is a number)
--- @tparam number|nil pz The Z component of the position (if pos is a number)
+-- @function applyModelForce
+-- @tparam vector force The force vector in Model Space
+-- @tparam vector|nil position The position in Model Space where the force is applied. Defaults to the ship's center of mass in Model Space
 -- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it.
 
---- Applies a rotation-dependent force to the Ship
+--- Applies a torque in Model Space to a ship at a Model Space position. A Model Space torque is relative to the ship's transform, meaning that it rotates and scales with the ship
 --
--- A rotation-dependent force is applied in the Ship's local coordinate system and changes with the Ship's rotation.
---
--- @function applyRotDependentForce
--- @tparam vector|number x Either a vector representing the force, or the X component of the force
--- @tparam number|nil y The Y component of the force (if x is a number)
--- @tparam number|nil z The Z component of the force (if x is a number)
+-- @function applyModelTorque
+-- @tparam vector torque The torque vector in Model Space
 -- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it.
 
---- Applies a rotation-dependent torque to the Ship
+--- Applies a force in World Space to a ship at a Model Space position. A World Space force is independent of the ship's transform, and is always global; for example, up in World Space is ALWAYS (0, 1, 0) (as in, towards the sky), regardless of the ship's orientation.
 --
--- A rotation-dependent torque is applied in the Ship's local coordinate system and changes with the Ship's rotation.
+-- This is useful for a balloon or similar block that should apply a force relative to the world, such as always pushing up against gravity.
 --
--- @function applyRotDependentTorque
--- @tparam vector|number x Either a vector representing the torque, or the X component of the torque
--- @tparam number|nil y The Y component of the torque (if x is a number)
--- @tparam number|nil z The Z component of the torque (if x is a number)
+-- @function applyWorldForceToModelPos
+-- @tparam vector force The force vector in World Space
+-- @tparam vector position The position in Model Space where the force is applied
 -- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it.
 
---- Applies a rotation-dependent force to the Ship at a specific position
+--- Applies a force in Body Space to a ship at a Body Space position. A Body Space force is positionally relative to the ship's Center of Mass, and applies relative to the ship's transform, meaning that it rotates and scales with the ship
 --
--- A rotation-dependent force is applied in the Ship's local coordinate system and changes with the Ship's rotation.
+-- @function applyBodyForce
+-- @tparam vector force The force vector in Body Space
+-- @tparam vector|nil position The position in Body Space where the force is applied. Defaults to (0,0,0), the ship's center of mass
+-- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it.
+
+--- Applies a torque in Body Space to a ship at a Body Space position. A Body Space torque is positionally relative to the ship's Center of Mass, and applies relative to the ship's transform, meaning that it rotates and scales with the ship
 --
--- @function applyRotDependentForceToPos
--- @tparam vector|number fx Either a vector representing the force, or the X component of the force
--- @tparam vector|number fy Either a vector representing the position, or the Y component of the force
--- @tparam number|nil fz The Z component of the force (if fx is a number)
--- @tparam number|nil px The X component of the position (if pos is a number)
--- @tparam number|nil py The Y component of the position (if pos is a number)
--- @tparam number|nil pz The Z component of the position (if pos is a number)
+-- @function applyBodyTorque
+-- @tparam vector torque The torque vector in Body Space
+-- @tparam vector|nil position The position in Body Space where the force is applied. Defaults to (0,0,0), the ship's center of mass
+-- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it.
+
+--- Applies a force in World Space to a ship at a Body Space position. A World Space force is independent of the ship's transform, and is always global; for example, up in World Space is ALWAYS (0, 1, 0) (as in, towards the sky), regardless of the ship's orientation
+--
+-- @function applyWorldForceToBodyPos
+-- @tparam vector force The force vector in World Space
+-- @tparam vector|nil position The position in Body Space where the force is applied
 -- @raise This method errors if there is no Ship associated with the computer OR if the computer is not a Command Computer and the configuration disallows it.
 
 --- Deprecated Methods
@@ -237,6 +229,30 @@
 --- Gets the Ship's Rotation Matrix
 -- @function getRotationMatrix
 -- @raise This method no longer exists! Use getTransformationMatrix instead!
+
+--- Applies an Invariant Force to the Ship
+-- @function applyInvariantForce
+-- @raise This method no longer exists! Use applyWorldForceToBodyPos instead!
+
+--- Applies an Invariant Torque to the Ship
+-- @function applyInvariantTorque
+-- @raise This method no longer exists! Use applyWorldTorque instead!
+
+--- Applies an Invariant Force to a position offset from the Ship's center of mass
+-- @function applyInvariantForceToPos
+-- @raise This method no longer exists! Use applyBodyForce instead!
+
+--- Applies a Rotation-Dependent Force to the Ship
+-- @function applyRotDependentForce
+-- @raise This method no longer exists! Use applyBodyForce instead!
+
+--- Applies a Rotation-Dependent Torque to the Ship
+-- @function applyRotDependentTorque
+-- @raise This method no longer exists! Use applyBodyTorque instead!
+
+--- Applies a Rotation-Dependent Force to a position offset from the Ship's center of mass
+-- @function applyRotDependentForceToPos
+-- @raise This method no longer exists! Use applyBodyForce instead!
 
 --- Physics Ticks Event Data
 --
@@ -292,7 +308,6 @@ local deprecatedQuat = {
 local env = _ENV
 
 for k,v in pairs(native) do
-    -- Convert functions with vector outputs to actual vectors
     if k == "getOmega" or k == "getScale" or k == "getShipyardPosition" or k == "getVelocity" or k == "getWorldspacePosition" or k == "transformPositionToWorld" then
         env[k] = function(...)
             local result, err = v(...)
@@ -317,86 +332,81 @@ for k,v in pairs(native) do
             end
             return matrix.from2DArray(result)
         end
-    elseif k == "getConstraints" then
+    elseif k == "getJoints" then
         env[k] = function(...)
-            local result, err = native.getTransformationMatrix(...)
+            local result, err = native.getJoints(...)
             if err then
                 error(err)
             end
-            for id, constraint in pairs(result) do
-                if constraint.localPos0 then
-                    constraint.localPos0 = vector.new(constraint.localPos0.x, constraint.localPos0.y, constraint.localPos0.z)
+            for id, joint in pairs(result) do
+                joint.pose0.pos = vector.new(joint.pose0.pos.x, joint.pose0.pos.y, joint.pose0.pos.z)
+                joint.pose0.rot = quaternion.fromComponents(joint.pose0.rot.x, joint.pose0.rot.y, joint.pose0.rot.z, joint.pose0.rot.w)
+                joint.pose1.pos = vector.new(joint.pose1.pos.x, joint.pose1.pos.y, joint.pose1.pos.z)
+                joint.pose1.rot = quaternion.fromComponents(joint.pose1.rot.x, joint.pose1.rot.y, joint.pose1.rot.z, joint.pose1.rot.w)
+                if joint.type == "D6" then
+                    if joint.drivePosition then
+                        joint.drivePosition.pose.pos = vector.new(joint.drivePosition.pose.pos.x, joint.drivePosition.pose.pos.y, joint.drivePosition.pose.pos.z)
+                        joint.drivePosition.pose.rot = quaternion.fromComponents(joint.drivePosition.pose.rot.x, joint.drivePosition.pose.rot.y, joint.drivePosition.pose.rot.z, joint.drivePosition.pose.rot.w)
+                    end
+                    if joint.driveVelocity then
+                        joint.driveVelocity.linear = vector.new(joint.driveVelocity.linear.x, joint.driveVelocity.linear.y, joint.driveVelocity.linear.z)
+                        joint.driveVelocity.angular = vector.new(joint.driveVelocity.angular.x, joint.driveVelocity.angular.y, joint.driveVelocity.angular.z)
+                    end
                 end
-                if constraint.localPos1 then
-                    constraint.localPos1 = vector.new(constraint.localPos1.x, constraint.localPos1.y, constraint.localPos1.z)
-                end
-                if constraint.localRot0 then
-                    constraint.localRot0 = quaternion.fromComponents(constraint.localRot0.x, constraint.localRot0.y, constraint.localRot0.z, constraint.localRot0.w)
-                end
-                if constraint.localRot1 then
-                    constraint.localRot1 = quaternion.fromComponents(constraint.localRot1.x, constraint.localRot1.y, constraint.localRot1.z, constraint.localRot1.w)
-                end
-                if constraint.localSlideAxis0 then
-                    constraint.localSlideAxis0 = vector.new(constraint.localSlideAxis0.x, constraint.localSlideAxis0.y, constraint.localSlideAxis0.z)
-                end
-                result[id] = constraint
+                result[id] = joint
             end
             return result
         end
-    elseif k == "applyInvariantForce" or k == "applyInvariantTorque" or k == "applyRotDependentForce" or k == "applyRotDependentTorque" then
+    elseif k == "applyWorldTorque" or k == "applyModelTorque" or k == "applyBodyTorque" then
         env[k] = function(...)
             local args = {...}
-            local vec = args[1]
-            expect(1, vec, "table", "number")
-            if type(vec) == "table" and (getmetatable(vec) or {}).__name ~= "vector" then
-                expect(1, vec, "vector", "number")
+            local torque = args[1]
+            expect(1, torque, "table")
+            if (getmetatable(torque) or {}).__name ~= "vector" then
+                expect(1, torque, "vector")
+            end
+            local _, err = v(torque.x, torque.y, torque.z, pos.x, pos.y, pos.z)
+            if err then
+                error(err)
+            end
+        end
+    elseif k == "applyWorldForce" or k == "applyModelForce" or k == "applyBodyForce" then
+        env[k] = function(...)
+            local args = {...}
+            local force = args[1]
+            local pos = args[2]
+            expect(1, force, "table")
+            expect(2, pos, "table", "nil")
+            if (getmetatable(force) or {}).__name ~= "vector" then
+                expect(1, force, "vector")
+            end
+            if type(pos) == "table" and (getmetatable(pos) or {}).__name ~= "vector" then
+                expect(2, pos, "vector", "nil")
             end
             local err
-            if type(vec) == "table" then
-                _, err = v(vec.x, vec.y, vec.z)
+            if pos then
+                _, err = v(force.x, force.y, force.z, pos.x, pos.y, pos.z)
             else
-                _, err = v(...)
+                _, err = v(force.x, force.y, force.z)
             end
             if err then
                 error(err)
             end
         end
-    elseif k == "applyInvariantForceToPos" or k == "applyRotDependentForceToPos" then
+    elseif k == "applyWorldForceToModelPos" or k == "applyWorldForceToBodyPos" then
         env[k] = function(...)
             local args = {...}
-            expect(1, args[1], "table", "number")
-            expect(2, args[2], "table", "number")
-            local firstVec = args[1]
-            if type(firstVec) == "table" and (getmetatable(firstVec) or {}).__name ~= "vector" then
-                expect(1, firstVec, "vector", "number")
+            local force = args[1]
+            local pos = args[2]
+            expect(1, force, "table")
+            expect(2, pos, "table")
+            if (getmetatable(force) or {}).__name ~= "vector" then
+                expect(1, force, "vector")
             end
-            local secondVec = args[2]
-            if type(secondVec) == "table" and (getmetatable(firstVec) or {}).__name ~= "vector" then
-                expect(2, secondVec, "vector", "number")
+            if (getmetatable(pos) or {}).__name ~= "vector" then
+                expect(2, pos, "vector")
             end
-
-            local err
-            if type(firstVec) == "number" and type(secondVec) == "number" then
-                expect(3, args[3], "number")
-                expect(4, args[4], "number")
-                expect(5, args[5], "number")
-                expect(6, args[6], "number")
-                _, err = v(...)
-            elseif type(firstVec) == "table" and type(secondVec) == "table" then
-                _, err = v(firstVec.x, firstVec.y, firstVec.z, secondVec.x, secondVec.y, secondVec.z)
-            else
-                local argstr = "["
-                for i, arg in pairs(args) do
-                    local type = type(arg)
-                    argstr = argstr .. type
-                    if i == #args then
-                        argstr = argstr .. "]"
-                    else
-                        argstr = argstr .. ", "
-                    end
-                end
-                err = ("bad arguments #%d and #%d (%s expected, got %s)"):format(1, 2, "[vector, vector] or [number, number, number, number, number, number]", argstr)
-            end
+            local _, err = v(force.x, force.y, force.z, pos.x, pos.y, pos.z)
             if err then
                 error(err)
             end
@@ -412,6 +422,12 @@ for _, funct in pairs(deprecatedQuat) do
     end
 end
 env.getRotationMatrix = function(...) error("This method no longer exists! Use getTransformationMatrix instead!") end
+env.applyInvariantForce = function(...) error("This method no longer exists! Use applyWorldForceToBodyPos instead!") end
+env.applyInvariantForceToPos = function(...) error("This method no longer exists! Use applyWorldForceToBodyPos instead!") end
+env.applyInvariantTorque = function(...) error("This method no longer exists! Use applyWorldTorque instead!") end
+env.applyRotDependentForce = function(...) error("This method no longer exists! Use applyBodyForce instead!") end
+env.applyRotDependentForceToPos = function(...) error("This method no longer exists! Use applyBodyForce instead!") end
+env.applyRotDependentTorque = function(...) error("This method no longer exists! Use applyBodyTorque instead!") end
 
 env.pullPhysicsTicks = function(...)
    local _, err = native.pullPhysicsTicks(...)

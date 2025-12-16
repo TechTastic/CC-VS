@@ -1,113 +1,142 @@
 package io.github.techtastic.cc_vs.apis
 
-import dan200.computercraft.api.component.ComputerComponents
-import dan200.computercraft.api.lua.IArguments
-import dan200.computercraft.api.lua.IComputerSystem
-import dan200.computercraft.api.lua.ILuaAPI
-import dan200.computercraft.api.lua.LuaException
-import dan200.computercraft.api.lua.LuaFunction
+import dan200.computercraft.api.lua.*
 import io.github.techtastic.cc_vs.PlatformUtils
-import io.github.techtastic.cc_vs.mixin.ShipObjectWorldAccessor
-import io.github.techtastic.cc_vs.ship.PhysicsTicksEventHandler
-import io.github.techtastic.cc_vs.ship.QueuedForcesApplier
 import io.github.techtastic.cc_vs.util.CCVSUtils
 import io.github.techtastic.cc_vs.util.CCVSUtils.toLua
 import io.github.techtastic.cc_vs.util.CCVSUtils.toVector
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec
-import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.phys.Vec3
 import org.joml.*
 import org.joml.primitives.AABBi
+import org.valkyrienskies.core.api.VsBeta
 import org.valkyrienskies.core.api.ships.LoadedServerShip
-import org.valkyrienskies.core.api.ships.ServerShip
-import org.valkyrienskies.core.apigame.constraints.VSAttachmentConstraint
-import org.valkyrienskies.core.apigame.constraints.VSConstraintAndId
-import org.valkyrienskies.core.game.ships.ShipObjectServer
+import org.valkyrienskies.core.api.util.GameTickOnly
+import org.valkyrienskies.core.api.util.PhysTickOnly
+import org.valkyrienskies.core.api.world.properties.DimensionId
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl
-import org.valkyrienskies.mod.common.getShipObjectManagingPos
-import org.valkyrienskies.mod.common.shipObjectWorld
-import org.valkyrienskies.mod.common.util.toJOML
-import org.valkyrienskies.mod.common.vsCore
-import kotlin.math.asin
-import kotlin.math.atan2
+import org.valkyrienskies.core.internal.joints.VSJointAndId
+import org.valkyrienskies.core.internal.world.VsiPhysLevel
+import org.valkyrienskies.mod.common.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CopyOnWriteArrayList
 
 open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
-    private fun verifyAdmin() {
-        if (PlatformUtils.isCommandOnly() && system.getComponent(ComputerComponents.ADMIN_COMPUTER) == null)
-            throw LuaException("This method requires a Command Computer!")
-    }
+    private val dimensionId: DimensionId
+        get() = system.level.dimensionId
+    @OptIn(GameTickOnly::class)
+    val ship: LoadedServerShip
+        get() = system.level.getLoadedShipManagingPos(system.position)
+            ?: throw LuaException("This computer is not on a Ship!")
 
+    @OptIn(PhysTickOnly::class)
+    val joints: CopyOnWriteArrayList<VSJointAndId> = CopyOnWriteArrayList()
+    private val startCollisions: ConcurrentHashMap.KeySetView<Map<String, Any>, Boolean> = ConcurrentHashMap.newKeySet()
+    private val persistCollisions: ConcurrentHashMap.KeySetView<Map<String, Any>, Boolean> = ConcurrentHashMap.newKeySet()
+    private val endCollisions: ConcurrentHashMap.KeySetView<Map<String, Any>, Boolean> = ConcurrentHashMap.newKeySet()
+
+    private val queuedData = ConcurrentLinkedQueue<LuaPhysShip>()
+
+    @OptIn(GameTickOnly::class, PhysTickOnly::class, VsBeta::class)
     override fun startup() {
+        ValkyrienSkiesMod.api.physTickEvent.on { event ->
+            joints.clear()
+            try {
+                val world = event.world as? VsiPhysLevel
+                world?.getJointsFromShip(ship.id)?.forEach { id ->
+                    world.getJointById(id)?.let { joint -> joints.add(VSJointAndId(id, joint)) }
+                }
+            } catch (_: LuaException) {}
+        }
+
+        ValkyrienSkiesMod.api.collisionStartEvent.on { event ->
+            try {
+                if (this.dimensionId == event.dimensionId && (this.ship.id == event.shipIdA || this.ship.id == event.shipIdB))
+                    startCollisions.add(event.toLua())
+            } catch (_: LuaException) {}
+        }
+        ValkyrienSkiesMod.api.collisionPersistEvent.on { event ->
+            try {
+                if (this.dimensionId == event.dimensionId && (this.ship.id == event.shipIdA || this.ship.id == event.shipIdB))
+                    persistCollisions.add(event.toLua())
+            } catch (_: LuaException) {}
+        }
+        ValkyrienSkiesMod.api.collisionEndEvent.on { event ->
+            try {
+                if (this.dimensionId == event.dimensionId && (this.ship.id == event.shipIdA || this.ship.id == event.shipIdB))
+                    endCollisions.add(event.toLua())
+            } catch (_: LuaException) {}
+        }
+
         try {
             if (PlatformUtils.exposePhysTick())
-                PhysicsTicksEventHandler.getOrCreateControl(getShip())
+                ValkyrienSkiesMod.api.physTickEvent.on { event ->
+                    event.world.getShipById(ship.id)?.let { queuedData.add(LuaPhysShip(it)) }
+                }
         } catch (_: LuaException) {}
         super.startup()
     }
 
     override fun update() {
+        if (startCollisions.isNotEmpty()) {
+            system.queueEvent("collisions_started", *this.startCollisions.toTypedArray())
+            startCollisions.clear()
+        }
+        if (persistCollisions.isNotEmpty()) {
+            system.queueEvent("collisions_persisted", *this.persistCollisions.toTypedArray())
+            persistCollisions.clear()
+        }
+        if (endCollisions.isNotEmpty()) {
+            system.queueEvent("collisions_ended", *this.endCollisions.toTypedArray())
+            endCollisions.clear()
+        }
+
         try {
             if (PlatformUtils.exposePhysTick()) {
-                val data = PhysicsTicksEventHandler.getOrCreateControl(getShip()).getData()
-                system.queueEvent("physics_ticks", *data)
+                system.queueEvent("physics_ticks", *queuedData.toTypedArray())
+                queuedData.clear()
             }
         } catch (_: LuaException) {}
         super.update()
     }
 
-    override fun shutdown() {
-        try {
-            if (PlatformUtils.exposePhysTick())
-                PhysicsTicksEventHandler.getOrCreateControl(getShip())
-        } catch (_: LuaException) {}
-        super.shutdown()
-    }
-
     override fun getNames(): Array<out String>? = arrayOf("ship")
 
-    protected fun getShip(): LoadedServerShip {
-        return system.level.getShipObjectManagingPos(system.position)
-            ?: throw LuaException("This computer is not on a Ship!")
-    }
-
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getId(): Long =
-        getShip().id
+    fun getId(): Long = ship.id
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getMass(): Double =
-        getShip().inertiaData.mass
+    fun getMass(): Double = ship.inertiaData.mass
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getMomentOfInertiaTensorToSave(): List<List<Double>> =
-        getShip().inertiaData.momentOfInertiaTensorToSave.toLua()
+    fun getMomentOfInertiaTensor(): List<List<Double>> = ship.inertiaData.inertiaTensor.toLua()
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getMomentOfInertiaTensor(): List<List<Double>> =
-        getShip().inertiaData.momentOfInertiaTensor.toLua()
+    fun getSlug(): String = ship.slug ?: "no-name"
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getSlug(): String = getShip().slug ?: "no-name"
+    fun getAngularVelocity(): Map<String, Double> = ship.angularVelocity.toLua()
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getOmega(): Map<String, Double> =
-        getShip().omega.toLua()
+    fun getQuaternion(): Map<String, Double> = ship.transform.shipToWorldRotation.toLua()
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getQuaternion(): Map<String, Double> =
-        getShip().transform.shipToWorldRotation.toLua()
+    fun getScale(): Map<String, Double> = ship.transform.shipToWorldScaling.toLua()
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getScale(): Map<String, Double> =
-        getShip().transform.shipToWorldScaling.toLua()
+    fun getShipyardPosition(): Map<String, Double> = ship.transform.positionInShip.toLua()
 
-    @LuaFunction
-    fun getShipyardPosition(): Map<String, Double> =
-        getShip().transform.positionInShip.toLua()
-
+    @OptIn(GameTickOnly::class)
     @LuaFunction
     fun getSize(): Map<String, Any> {
-        val aabb = getShip().shipAABB ?: AABBi(0, 0, 0, 0, 0, 0)
+        val aabb = ship.shipAABB ?: AABBi(0, 0, 0, 0, 0, 0)
         return mapOf(
             Pair("x", aabb.maxX() - aabb.minX()),
             Pair("y", aabb.maxY() - aabb.minY()),
@@ -115,14 +144,15 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
         )
     }
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getVelocity(): Map<String, Double> =
-        getShip().velocity.toLua()
+    fun getVelocity(): Map<String, Double> = ship.velocity.toLua()
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun getWorldspacePosition(): Map<String, Double> =
-        getShip().transform.positionInWorld.toLua()
+    fun getWorldspacePosition(): Map<String, Double> = ship.transform.positionInWorld.toLua()
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
     fun transformPositionToWorld(args: IArguments): Map<String, Double> {
         val pos =
@@ -130,20 +160,23 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
                 Vector3d(args.getTable(0).toVector())
             else
                 Vector3d(args.getDouble(0), args.getDouble(1), args.getDouble(2))
-        return getShip().shipToWorld.transformPosition(pos).toLua()
+        return ship.shipToWorld.transformPosition(pos).toLua()
     }
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun isStatic(): Boolean = getShip().isStatic
+    fun isStatic(): Boolean = ship.isStatic
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
     fun setSlug(name: String) {
-        getShip().slug = name
+        ValkyrienSkiesMod.vsCore.renameShip(ship, name)
     }
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
     fun getTransformationMatrix(): List<List<Double>> {
-        val transform = getShip().transform.shipToWorld
+        val transform = ship.transform.shipToWorld
         val matrix: MutableList<List<Double>> = mutableListOf()
 
         for (i in 0..3) {
@@ -154,12 +187,10 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
         return matrix.toList()
     }
 
+    @OptIn(PhysTickOnly::class)
     @LuaFunction
-    fun getConstraints(): List<*> {
-        val accessor = system.level.shipObjectWorld as ShipObjectWorldAccessor
-        return accessor.shipIdToConstraints.getOrDefault(getShip().id, setOf()).map { id ->
-            accessor.constraints[id]?.let { VSConstraintAndId(id, it) }
-        }.map { combo -> combo?.toLua() }
+    fun getJoints(): List<*> {
+        return joints.map { combo -> combo.toLua() }.toList()
     }
 
     @LuaFunction
@@ -168,73 +199,120 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
             throw LuaException("Physics Tick is not exposed! This is a configuration option!")
         return null
     }
-
+    
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyInvariantForce(forceX: Double, forceY: Double, forceZ: Double) {
-        verifyAdmin()
-        QueuedForcesApplier.getOrCreateControl(getShip()).applyInvariantForce(Vector3d(forceX, forceY, forceZ))
+    fun applyWorldForce(forceInWorldX: Double, forceInWorldY: Double, forceInWorldZ: Double, posInWorldX: Double?, posInWorldY: Double?, posInWorldZ: Double?) {
+        CCVSUtils.verifyAdmin(system)
+        val posInWorld: Vector3d? = posInWorldX?.let { x -> 
+            posInWorldY?.let { y -> 
+                posInWorldZ?.let { z -> 
+                    Vector3d(x, y, z)
+                } ?: throw LuaValues.badArgument(5, "number", "nil") 
+            } ?: throw LuaValues.badArgument(6, "number", "nil") 
+        }
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyWorldForce(ship.id, Vector3d(forceInWorldX, forceInWorldY, forceInWorldZ), posInWorld)
+    }
+    
+    @OptIn(GameTickOnly::class)
+    @LuaFunction
+    fun applyWorldTorque(torqueInWorldX: Double, torqueInWorldY: Double, torqueInWorldZ: Double) {
+        CCVSUtils.verifyAdmin(system)
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyWorldTorque(ship.id, Vector3d(torqueInWorldX, torqueInWorldY, torqueInWorldZ))
+    }
+    
+    @OptIn(GameTickOnly::class)
+    @LuaFunction
+    fun applyModelForce(forceInShipX: Double, forceInShipY: Double, forceInShipZ: Double, posInShipX: Double?, posInShipY: Double?, posInShipZ: Double?) {
+        CCVSUtils.verifyAdmin(system)
+        val posInShip: Vector3d? = posInShipX?.let { x ->
+            posInShipY?.let { y ->
+                posInShipZ?.let { z ->
+                    Vector3d(x, y, z)
+                } ?: throw LuaValues.badArgument(5, "number", "nil")
+            } ?: throw LuaValues.badArgument(6, "number", "nil")
+        }
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyModelForce(ship.id, Vector3d(forceInShipX, forceInShipY, forceInShipZ), posInShip)
+    }
+    
+    @OptIn(GameTickOnly::class)
+    @LuaFunction
+    fun applyModelTorque(torqueInShipX: Double, torqueInShipY: Double, torqueInShipZ: Double) {
+        CCVSUtils.verifyAdmin(system)
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyModelTorque(ship.id, Vector3d(torqueInShipX, torqueInShipY, torqueInShipZ))
+    }
+    
+    @OptIn(GameTickOnly::class)
+    @LuaFunction
+    fun applyWorldForceToModelPos(forceInWorldX: Double, forceInWorldY: Double, forceInWorldZ: Double, posInShipX: Double, posInShipY: Double, posInShipZ: Double) {
+        CCVSUtils.verifyAdmin(system)
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyWorldForceToModelPos(ship.id, Vector3d(forceInWorldX, forceInWorldY, forceInWorldZ), Vector3d(posInShipX, posInShipY, posInShipZ))
     }
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyInvariantTorque(torqueX: Double, torqueY: Double, torqueZ: Double) {
-        verifyAdmin()
-        QueuedForcesApplier.getOrCreateControl(getShip()).applyInvariantTorque(Vector3d(torqueX, torqueY, torqueZ))
+    fun applyBodyForce(forceInBodyX: Double, forceInBodyY: Double, forceInBodyZ: Double, posInBodyX: Double?, posInBodyY: Double?, posInBodyZ: Double?) {
+        CCVSUtils.verifyAdmin(system)
+        val posInBody: Vector3d = posInBodyX?.let { x ->
+            posInBodyY?.let { y ->
+                posInBodyZ?.let { z ->
+                    Vector3d(x, y, z)
+                } ?: throw LuaValues.badArgument(5, "number", "nil")
+            } ?: throw LuaValues.badArgument(6, "number", "nil")
+        } ?: Vector3d()
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyBodyForce(ship.id, Vector3d(forceInBodyX, forceInBodyY, forceInBodyZ), posInBody)
     }
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyInvariantForceToPos(forceX: Double, forceY: Double, forceZ: Double, posX: Double, posY: Double, posZ: Double) {
-        verifyAdmin()
-        QueuedForcesApplier.getOrCreateControl(getShip()).applyInvariantForceToPos(Vector3d(forceX, forceY, forceZ), Vector3d(posX, posY, posZ))
+    fun applyBodyTorque(torqueInBodyX: Double, torqueInBodyY: Double, torqueInBodyZ: Double) {
+        CCVSUtils.verifyAdmin(system)
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyBodyTorque(ship.id, Vector3d(torqueInBodyX, torqueInBodyY, torqueInBodyZ))
     }
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyRotDependentForce(forceX: Double, forceY: Double, forceZ: Double) {
-        verifyAdmin()
-        QueuedForcesApplier.getOrCreateControl(getShip()).applyRotDependentForce(Vector3d(forceX, forceY, forceZ))
+    fun applyWorldForceToBodyPos(forceInWorldX: Double, forceInWorldY: Double, forceInWorldZ: Double, posInBodyX: Double, posInBodyY: Double, posInBodyZ: Double) {
+        CCVSUtils.verifyAdmin(system)
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyWorldForceToModelPos(ship.id, Vector3d(forceInWorldX, forceInWorldY, forceInWorldZ), Vector3d(posInBodyX, posInBodyY, posInBodyZ))
     }
 
-    @LuaFunction
-    fun applyRotDependentTorque(torqueX: Double, torqueY: Double, torqueZ: Double) {
-        verifyAdmin()
-        QueuedForcesApplier.getOrCreateControl(getShip()).applyRotDependentTorque(Vector3d(torqueX, torqueY, torqueZ))
-    }
-
-    @LuaFunction
-    fun applyRotDependentForceToPos(forceX: Double, forceY: Double, forceZ: Double, posX: Double, posY: Double, posZ: Double) {
-        verifyAdmin()
-        QueuedForcesApplier.getOrCreateControl(getShip()).applyRotDependentForceToPos(Vector3d(forceX, forceY, forceZ), Vector3d(posX, posY, posZ))
-    }
-
+    @OptIn(GameTickOnly::class)
     @LuaFunction
     fun setStatic(b: Boolean) {
-        QueuedForcesApplier.getOrCreateControl(getShip()).setStatic(b)
+        CCVSUtils.verifyAdmin(system)
+        ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).setStatic(ship.id, b)
     }
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
     fun setScale(scale: Double) {
-        vsCore.scaleShip(system.level.shipObjectWorld, getShip(), scale)
+        CCVSUtils.verifyAdmin(system)
+        vsCore.scaleShip(system.level.shipObjectWorld, ship, scale)
     }
 
+    @OptIn(GameTickOnly::class)
     @LuaFunction
     fun teleport(args: IArguments) {
+        CCVSUtils.verifyAdmin(system)
         if (!PlatformUtils.canTeleport())
             throw LuaException("Teleporting is Disabled via CC: VS Config!")
 
         val input = args.getTable(0)
 
-        var pos = getShip().transform.positionInWorld
+        var pos = ship.transform.positionInWorld
         if (input.containsKey("pos"))
             pos = getVectorFromTable(input, "pos")
 
-        var rot = getShip().transform.shipToWorldRotation
+        var rot = ship.transform.shipToWorldRotation
         if (input.containsKey("rot"))
             rot = getQuaternionFromTable(input).normalize(Quaterniond())
 
-        var vel = getShip().velocity
+        var vel = ship.velocity
         if (input.containsKey("vel"))
             vel = getVectorFromTable(input, "vel")
 
-        var omega = getShip().omega
+        var omega = ship.angularVelocity
         if (input.containsKey("omega"))
             omega = getVectorFromTable(input, "omega")
 
@@ -242,7 +320,7 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
         if (input.containsKey("dimension"))
             dimension = (input["dimension"] ?: throwMalformedSectionError("dimension")) as String
 
-        var scale = getShip().transform.shipToWorldScaling.x()
+        var scale = ship.transform.shipToWorldScaling.x()
         if (input.containsKey("scale"))
             scale = (input["scale"] ?: throwMalformedSectionError("scale")) as Double
 
@@ -251,7 +329,7 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
         println("Rot: ${teleportData.newRot}\n")
 
         //vsCore.teleportShip(this.level.shipObjectWorld, getShip(), teleportData)
-        system.level.shipObjectWorld.teleportShip(getShip(), teleportData)
+        system.level.shipObjectWorld.teleportShip(ship, teleportData)
     }
 
     private fun getVectorFromTable(input: Map<*, *>, section: String): Vector3dc {

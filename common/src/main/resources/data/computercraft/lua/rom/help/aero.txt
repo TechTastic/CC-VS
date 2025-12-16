@@ -1,0 +1,11 @@
+Functions in the Aerodynamics API:
+aero.getDefaultMax()
+aero.getDefaultSeaLevel()
+aero.getDragCoefficient()
+aero.getGravitationalAcceleration()
+aero.getUniversalGasConstant()
+aero.getAirMolarMass()
+aero.getAtmosphericParameters()
+aero.getAirDensity( number | nil )
+aero.getAirPressure( number | nil )
+aero.getAirTemperature( number | nil )
