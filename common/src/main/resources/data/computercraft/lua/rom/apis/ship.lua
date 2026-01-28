@@ -361,7 +361,7 @@ for k,v in pairs(native) do
             if (getmetatable(torque) or {}).__name ~= "vector" then
                 expect(1, torque, "vector")
             end
-            local _, err = v(torque.x, torque.y, torque.z, pos.x, pos.y, pos.z)
+            local _, err = v(torque.x, torque.y, torque.z)
             if err then
                 error(err)
             end
@@ -383,7 +383,7 @@ for k,v in pairs(native) do
             if pos then
                 _, err = v(force.x, force.y, force.z, pos.x, pos.y, pos.z)
             else
-                _, err = v(force.x, force.y, force.z)
+                _, err = v(force.x, force.y, force.z, nil, nil, nil)
             end
             if err then
                 error(err)
