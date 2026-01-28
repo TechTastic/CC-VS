@@ -40,39 +40,34 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     override fun startup() {
         ValkyrienSkiesMod.api.physTickEvent.on { event ->
             joints.clear()
-            try {
-                val world = event.world as? VsiPhysLevel
-                world?.getJointsFromShip(ship.id)?.forEach { id ->
-                    world.getJointById(id)?.let { joint -> joints.add(VSJointAndId(id, joint)) }
-                }
-            } catch (_: LuaException) {}
+            val world = event.world as? VsiPhysLevel
+            val ship = system.level.getLoadedShipManagingPos(system.position) ?: return@on
+            world?.getJointsFromShip(ship.id)?.forEach { id ->
+                world.getJointById(id)?.let { joint -> joints.add(VSJointAndId(id, joint)) }
+            }
         }
 
         ValkyrienSkiesMod.api.collisionStartEvent.on { event ->
-            try {
-                if (this.dimensionId == event.dimensionId && (this.ship.id == event.shipIdA || this.ship.id == event.shipIdB))
-                    startCollisions.add(event.toLua())
-            } catch (_: LuaException) {}
+            val ship = system.level.getLoadedShipManagingPos(system.position) ?: return@on
+            if (this.dimensionId == event.dimensionId && (ship.id == event.shipIdA || ship.id == event.shipIdB))
+                startCollisions.add(event.toLua())
         }
         ValkyrienSkiesMod.api.collisionPersistEvent.on { event ->
-            try {
-                if (this.dimensionId == event.dimensionId && (this.ship.id == event.shipIdA || this.ship.id == event.shipIdB))
-                    persistCollisions.add(event.toLua())
-            } catch (_: LuaException) {}
+            val ship = system.level.getLoadedShipManagingPos(system.position) ?: return@on
+            if (this.dimensionId == event.dimensionId && (ship.id == event.shipIdA || ship.id == event.shipIdB))
+                persistCollisions.add(event.toLua())
         }
         ValkyrienSkiesMod.api.collisionEndEvent.on { event ->
-            try {
-                if (this.dimensionId == event.dimensionId && (this.ship.id == event.shipIdA || this.ship.id == event.shipIdB))
-                    endCollisions.add(event.toLua())
-            } catch (_: LuaException) {}
+            val ship = system.level.getLoadedShipManagingPos(system.position) ?: return@on
+            if (this.dimensionId == event.dimensionId && (ship.id == event.shipIdA || ship.id == event.shipIdB))
+                endCollisions.add(event.toLua())
         }
 
-        try {
-            if (PlatformUtils.exposePhysTick())
-                ValkyrienSkiesMod.api.physTickEvent.on { event ->
-                    event.world.getShipById(ship.id)?.let { queuedData.add(LuaPhysShip(it)) }
-                }
-        } catch (_: LuaException) {}
+        if (PlatformUtils.exposePhysTick())
+            ValkyrienSkiesMod.api.physTickEvent.on { event ->
+                val ship = system.level.getLoadedShipManagingPos(system.position) ?: return@on
+                event.world.getShipById(ship.id)?.let { queuedData.add(LuaPhysShip(it)) }
+            }
         super.startup()
     }
 
