@@ -8,9 +8,14 @@ import org.valkyrienskies.core.api.VsBeta
 import org.valkyrienskies.core.api.util.AerodynamicUtils
 import org.valkyrienskies.core.api.util.GameTickOnly
 import org.valkyrienskies.core.api.world.properties.DimensionId
+import org.valkyrienskies.core.impl.api_impl.config.VsiConfigModelCategoryImpl
+import org.valkyrienskies.core.internal.config.VsiConfigModelCategory
+import org.valkyrienskies.core.internal.config.VsiConfigModelEntry
 import org.valkyrienskies.mod.api.positionToWorld
+import org.valkyrienskies.mod.api.shipWorld
 import org.valkyrienskies.mod.common.ValkyrienSkiesMod
 import org.valkyrienskies.mod.common.dimensionId
+import org.valkyrienskies.mod.common.shipObjectWorld
 
 class AerodynamicsAPI(private val system: IComputerSystem): ILuaAPI {
     val dimensionId: DimensionId
@@ -35,7 +40,7 @@ class AerodynamicsAPI(private val system: IComputerSystem): ILuaAPI {
     @OptIn(VsBeta::class)
     val dragCoefficient: Double
         @LuaFunction
-        get() = AerodynamicUtils.DRAG_COEFFICIENT
+        get() = ((ValkyrienSkiesMod.vsCore.getServerConfig().root.children["Drag Settings"] as VsiConfigModelCategory).children["dragCoefficient"] as VsiConfigModelEntry<Double>).getValue.invoke();
 
     @OptIn(VsBeta::class)
     val gravitationalAcceleration: Double
