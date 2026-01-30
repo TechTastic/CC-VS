@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - uses: actions/setup-java@v4
         with:
@@ -25,9 +27,6 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - run: chmod +x ./gradlew
-
-      - name: Copy Advanced Math into CC:VS
-        run: ./gradlew common:copyMathLibrary
 
       - name: Build mod
         run: ./gradlew build
