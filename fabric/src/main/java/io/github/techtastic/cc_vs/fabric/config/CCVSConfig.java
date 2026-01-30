@@ -1,4 +1,4 @@
-package io.github.techtastic.ccvs.fabric.config;
+package io.github.techtastic.cc_vs.fabric.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 

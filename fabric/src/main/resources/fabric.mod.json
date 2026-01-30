@@ -16,13 +16,13 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "io.github.techtastic.ccvs.fabric.CCVSModFabric"
+      "io.github.techtastic.cc_vs.fabric.CCVSModFabric"
     ],
     "client": [
-      "io.github.techtastic.ccvs.fabric.CCVSModFabric${'$'}Client"
+      "io.github.techtastic.cc_vs.fabric.CCVSModFabric${'$'}Client"
     ],
     "preLaunch": [
-      "io.github.techtastic.ccvs.fabric.ValkyrienPreLaunch"
+      "io.github.techtastic.cc_vs.fabric.ValkyrienPreLaunch"
     ]
   },
   "mixins": [

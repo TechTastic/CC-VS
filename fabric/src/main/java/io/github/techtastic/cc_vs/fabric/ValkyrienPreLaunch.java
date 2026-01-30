@@ -1,4 +1,4 @@
-package io.github.techtastic.ccvs.fabric;
+package io.github.techtastic.cc_vs.fabric;
 
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 

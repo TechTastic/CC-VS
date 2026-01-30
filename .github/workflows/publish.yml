@@ -26,6 +26,9 @@ jobs:
 
       - run: chmod +x ./gradlew
 
+      - name: Copy Advanced Math into CC:VS
+        run: ./gradlew copyMathLibrary
+
       - name: Build mod
         run: ./gradlew build
 
