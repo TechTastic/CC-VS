@@ -7,6 +7,10 @@ permissions:
   contents: read
   id-token: write
 
+env:
+  MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+  CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
