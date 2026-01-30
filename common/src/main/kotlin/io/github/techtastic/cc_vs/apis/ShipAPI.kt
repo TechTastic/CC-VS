@@ -197,14 +197,15 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     
     @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyWorldForce(forceInWorldX: Double, forceInWorldY: Double, forceInWorldZ: Double, posInWorldX: Double?, posInWorldY: Double?, posInWorldZ: Double?) {
+    fun applyWorldForce(forceInWorldX: Double, forceInWorldY: Double, forceInWorldZ: Double, args: IArguments) {
         CCVSUtils.verifyAdmin(system)
-        val posInWorld: Vector3d? = posInWorldX?.let { x -> 
-            posInWorldY?.let { y -> 
-                posInWorldZ?.let { z -> 
-                    Vector3d(x, y, z)
-                } ?: throw LuaValues.badArgument(5, "number", "nil") 
-            } ?: throw LuaValues.badArgument(6, "number", "nil") 
+        var posInWorld: Vector3d? = null
+        args.optDouble(3).ifPresent { x ->
+            args.optDouble(4).ifPresent { y ->
+                args.optDouble(5).ifPresent { z ->
+                    posInWorld = Vector3d(x, y, z)
+                }
+            }
         }
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyWorldForce(ship.id, Vector3d(forceInWorldX, forceInWorldY, forceInWorldZ), posInWorld)
     }
@@ -218,14 +219,15 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
     
     @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyModelForce(forceInShipX: Double, forceInShipY: Double, forceInShipZ: Double, posInShipX: Double?, posInShipY: Double?, posInShipZ: Double?) {
+    fun applyModelForce(forceInShipX: Double, forceInShipY: Double, forceInShipZ: Double, args: IArguments) {
         CCVSUtils.verifyAdmin(system)
-        val posInShip: Vector3d? = posInShipX?.let { x ->
-            posInShipY?.let { y ->
-                posInShipZ?.let { z ->
-                    Vector3d(x, y, z)
-                } ?: throw LuaValues.badArgument(5, "number", "nil")
-            } ?: throw LuaValues.badArgument(6, "number", "nil")
+        var posInShip: Vector3d? = null
+        args.optDouble(3).ifPresent { x ->
+            args.optDouble(4).ifPresent { y ->
+                args.optDouble(5).ifPresent { z ->
+                    posInShip = Vector3d(x, y, z)
+                }
+            }
         }
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyModelForce(ship.id, Vector3d(forceInShipX, forceInShipY, forceInShipZ), posInShip)
     }
@@ -246,15 +248,16 @@ open class ShipAPI(val system: IComputerSystem) : ILuaAPI {
 
     @OptIn(GameTickOnly::class)
     @LuaFunction
-    fun applyBodyForce(forceInBodyX: Double, forceInBodyY: Double, forceInBodyZ: Double, posInBodyX: Double?, posInBodyY: Double?, posInBodyZ: Double?) {
+    fun applyBodyForce(forceInBodyX: Double, forceInBodyY: Double, forceInBodyZ: Double, args: IArguments) {
         CCVSUtils.verifyAdmin(system)
-        val posInBody: Vector3d = posInBodyX?.let { x ->
-            posInBodyY?.let { y ->
-                posInBodyZ?.let { z ->
-                    Vector3d(x, y, z)
-                } ?: throw LuaValues.badArgument(5, "number", "nil")
-            } ?: throw LuaValues.badArgument(6, "number", "nil")
-        } ?: Vector3d()
+        val posInBody = Vector3d()
+        args.optDouble(3).ifPresent { x ->
+            args.optDouble(4).ifPresent { y ->
+                args.optDouble(5).ifPresent { z ->
+                    posInBody.set(x, y, z)
+                }
+            }
+        }
         ValkyrienSkiesMod.getOrCreateGTPA(system.level.dimensionId).applyBodyForce(ship.id, Vector3d(forceInBodyX, forceInBodyY, forceInBodyZ), posInBody)
     }
 

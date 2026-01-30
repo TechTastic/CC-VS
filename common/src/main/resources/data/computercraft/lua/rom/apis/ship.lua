@@ -431,22 +431,22 @@ env.applyRotDependentTorque = function(...) error("This method no longer exists!
 env.getOmega = function(...) error("This method no longer exists! Use getAngularVelocity instead!") end
 
 env.pullPhysicsTicks = function(...)
-   local _, err = native.pullPhysicsTicks(...)
-   if err then
-       error(err)
-   end
-   local event = table.pack(os.pullEvent("physics_ticks"))
-   for k,v in pairs(event) do
-       if type(v) == "table" then
-           local result, _ = v.getPoseVel()
-           v.getPoseVel = function()
-               result.vel = vector.new(result.vel.x, result.vel.y, result.vel.z)
-               result.omega = vector.new(result.omega.x, result.omega.y, result.omega.z)
-               result.pos = vector.new(result.pos.x, result.pos.y, result.pos.z)
-               result.rot = quaternion.fromComponents(result.rot.x, result.rot.y, result.rot.z, result.rot.w)
-               return result
-           end
-       end
-   end
-   return table.unpack(event)
+    local _, err = native.pullPhysicsTicks(...)
+    if err then
+        error(err)
+    end
+    local event = table.pack(os.pullEvent("physics_ticks"))
+    for k,v in pairs(event) do
+        if type(v) == "table" then
+            local result, _ = v.getPoseVel()
+            v.getPoseVel = function()
+                result.vel = vector.new(result.vel.x, result.vel.y, result.vel.z)
+                result.omega = vector.new(result.omega.x, result.omega.y, result.omega.z)
+                result.pos = vector.new(result.pos.x, result.pos.y, result.pos.z)
+                result.rot = quaternion.fromComponents(result.rot.x, result.rot.y, result.rot.z, result.rot.w)
+                return result
+            end
+        end
+    end
+    return table.unpack(event)
 end
