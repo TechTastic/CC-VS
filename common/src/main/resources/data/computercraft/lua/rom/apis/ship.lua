@@ -62,7 +62,7 @@
 -- @raise This method errors if there is no Ship associated with the computer
 
 --- Gets the Ship's angular velocity
--- @function getOmega
+-- @function getAngularVelocity
 -- @treturn vector The Ship's angular velocity
 -- @see getVelocity
 -- @raise This method errors if there is no Ship associated with the computer
@@ -194,6 +194,10 @@
 --
 -- @section deprecated
 
+--- Gets the Ship's Omega (angular velocity)
+-- @function getOmega
+-- @raise This method no longer exists! Use getAngularVelocity instead!
+
 --- Gets the Ship's Euler Angles in ZYX order
 -- @function getEulerAnglesZYX
 -- @raise This method no longer exists! Please utilize the new quaternion API!
@@ -304,7 +308,7 @@ local deprecatedQuat = {
 local env = _ENV
 
 for k,v in pairs(native) do
-    if k == "getOmega" or k == "getScale" or k == "getShipyardPosition" or k == "getVelocity" or k == "getWorldspacePosition" or k == "transformPositionToWorld" then
+    if k == "getAngularVelocity" or k == "getScale" or k == "getShipyardPosition" or k == "getVelocity" or k == "getWorldspacePosition" or k == "transformPositionToWorld" then
         env[k] = function(...)
             local result, err = v(...)
             if err then
@@ -424,6 +428,7 @@ env.applyInvariantTorque = function(...) error("This method no longer exists! Us
 env.applyRotDependentForce = function(...) error("This method no longer exists! Use applyBodyForce instead!") end
 env.applyRotDependentForceToPos = function(...) error("This method no longer exists! Use applyBodyForce instead!") end
 env.applyRotDependentTorque = function(...) error("This method no longer exists! Use applyBodyTorque instead!") end
+env.getOmega = function(...) error("This method no longer exists! Use getAngularVelocity instead!") end
 
 env.pullPhysicsTicks = function(...)
    local _, err = native.pullPhysicsTicks(...)
