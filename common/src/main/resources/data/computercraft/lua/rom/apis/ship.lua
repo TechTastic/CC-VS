@@ -1,5 +1,7 @@
 --- This API is added by CC: VS and allows CC: Tweaked computers to access information from Valkyrien Skies Ships.
 --
+-- This library also includes [CC: Advanced Math][advanced-math] which provides `quaternion` and `matrix` APIs.
+--
 -- [advanced-math]: https://github.com/TechTastic/Advanced-Math/tree/0.2.0/CCSharp/src/CCSharp/AdvancedMath
 --
 -- @module ship
