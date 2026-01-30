@@ -1,8 +1,8 @@
-package io.github.techtastic.cc_vs.fabric;
+package io.github.techtastic.ccvs.fabric;
 
 import fuzs.forgeconfigapiport.impl.config.ForgeConfigRegistryImpl;
 import io.github.techtastic.cc_vs.CCVSMod;
-import io.github.techtastic.cc_vs.fabric.config.CCVSConfig;
+import io.github.techtastic.ccvs.fabric.config.CCVSConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

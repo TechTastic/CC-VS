@@ -1,6 +1,6 @@
-package io.github.techtastic.cc_vs.fabric;
+package io.github.techtastic.ccvs.fabric;
 
-import io.github.techtastic.cc_vs.fabric.config.CCVSConfig;
+import io.github.techtastic.ccvs.fabric.config.CCVSConfig;
 
 public class PlatformUtilsImpl {
     public static boolean canTeleport() {
