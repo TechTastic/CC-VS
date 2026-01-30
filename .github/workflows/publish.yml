@@ -1,4 +1,4 @@
-name: Generate and Deploy Documentation
+name: Publish Mod
 
 on:
   workflow_dispatch:
