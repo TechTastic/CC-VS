@@ -1,4 +1,11 @@
 # Changes
-- Updated VS to 2.4!!!!!
-- Added Aerodynamics API and Drag API!!!
-- New Shi API methods!!!!
+- Updated VS dependency to 2.4.9
+- Updated Advanced Math dependency
+- Fixed Ship API issues
+  - Error upon trying to load due to no existing Ship
+  - Still having `getOmega`, replaced with `getAngularVelocity`
+  - Fixed torque application methods to not take in a position
+  - Fixed force application methods accepting a position
+- Fixed Drag API issues
+  - Wind Direction and Speed change properly
+  - `applyWindImpulse` now functions as expected
