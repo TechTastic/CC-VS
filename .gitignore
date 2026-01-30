@@ -24,5 +24,7 @@ matrix.txt
 quaternion.txt
 pid.lua
 mmath.lua
+stats.lua
 
 docs/
+.kotlin

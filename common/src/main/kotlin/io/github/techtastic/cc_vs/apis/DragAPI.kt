@@ -93,7 +93,7 @@ open class DragAPI(val system: IComputerSystem) : ILuaAPI {
         val x = args.getDouble(0)
         val y = args.getDouble(1)
         val z = args.getDouble(2)
-        val speed = Math.min(args.getDouble(4), 0.0)
+        val speed = args.getDouble(4).coerceAtMost(0.0)
         ship.dragController?.applyWindImpulse(Vector3d(x, y, z), speed)
     }
 }

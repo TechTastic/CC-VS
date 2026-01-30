@@ -93,7 +93,7 @@ for k,v in pairs(native) do
             if (getmetatable(direction) or {}).__name ~= "vector" then
                 expect(1, direction, "vector")
             end
-            if #direction ~= 1 then
+            if direction:length() ~= 1 then
                 expect(1, direction, "normalized vector")
             end
             local _, err = v(direction.x, direction.y, direction.z, speed)
