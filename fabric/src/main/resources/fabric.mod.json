@@ -8,8 +8,8 @@
     "TechTastic"
   ],
   "contact": {
-    "homepage": "https://valkyrienskies.org/",
-    "sources": "https://github.com/ValkyrienSkies/Eureka"
+    "homepage": "https://techtastic.github.io/CC-VS/",
+    "sources": "https://github.com/TechTastic/CC-VS"
   },
   "license": "Apache-2.0",
   "icon": "assets/cc_vs/icon.png",
