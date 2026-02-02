@@ -2,7 +2,7 @@
 --
 -- This library also includes [CC: Advanced Math][advanced-math] which provides `quaternion` and `matrix` APIs.
 --
--- [advanced-math]: https://github.com/TechTastic/Advanced-Math/tree/0.2.0/CCSharp/src/CCSharp/AdvancedMath
+-- [advanced-math]: https://techtastic.github.io/Advanced-Math/
 --
 -- @module ship
 
