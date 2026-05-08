@@ -1,4 +1,4 @@
 # Changes
-- Fixed Ship API silently failing due to improperly wrapping `ship.getConstraints`
+- Updated CC: Advanced Math to 0.3.5
 
 # This version is now officially dead and archived!
